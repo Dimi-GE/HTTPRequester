@@ -10,8 +10,8 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HTTPRequester.generated.h"
 
-// class IHttpRequest;
-// class IHttpResponse;
+// Dynamic delegate that Blueprints can pass as a custom event
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnDownloadResponse, const FString&, FileContent);
 
 UCLASS()
 class HTTPMANAGER_API UHTTPRequester : public UEditorUtilityWidget
@@ -19,11 +19,16 @@ class HTTPMANAGER_API UHTTPRequester : public UEditorUtilityWidget
 	GENERATED_BODY()
 	
 	public:
+	
+	// Function to start downloading (now accepts a Blueprint event)
+	UFUNCTION(BlueprintCallable, Category="HTTP Utilities", meta = (AdvancedDisplay = "bSaveToFile"))
+	void DownloadFile(const FString& URL, bool bSaveToFile, FOnDownloadResponse Callback);
 
-	UFUNCTION(BlueprintCallable, Category="HTTP Utilities", meta=(WorldContext="WorldContextObject"))
-	void DownloadFile();
 
 	private:
+	// Store the callback to call later
+	FOnDownloadResponse DownloadResponseDelegate;
+
 
 	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
