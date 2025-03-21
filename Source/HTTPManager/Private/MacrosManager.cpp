@@ -12,9 +12,10 @@ void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Outp
     FString ExtensionFilter = TEXT("*.csv");
     TArray<FString> FoundFiles;
 
-    // Clear the macros arrays
+    // Clear the defaults
     MacrosArray.Empty();
     MacrossArray_FullPath.Empty();
+    ScrollingIndex = 0;
     
     // Construct search path (e.g., "C:/MyFolder/*.txt")
     FString SearchPattern = Directory + ExtensionFilter;
@@ -35,8 +36,8 @@ void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Outp
         MacrosArray.Add(FPaths::GetCleanFilename(FilePath));
     }
 
-    Output = this->ReflectFileToScreen_INIT();
-    SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[0]));
+    Output = this->ReflectFileToScreen_UTIL(ScrollingIndex);
+    SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[ScrollingIndex]));
     bIsSucceed = true;
 }
 
@@ -57,7 +58,7 @@ void UMacrosManager::ScrollForward(FString &OutContent)
     // Check the length of the array and return the content
     if (ScrollingIndex <= FullPathsNum)
     {
-        FFileHelper::LoadFileToString(Content, *MacrossArray_FullPath[ScrollingIndex]);
+        Content = this->ReflectFileToScreen_UTIL(ScrollingIndex);
         OutContent = Content;
         SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[ScrollingIndex]));
     }
@@ -65,7 +66,7 @@ void UMacrosManager::ScrollForward(FString &OutContent)
     else
     {
         ScrollingIndex = 0;
-        FFileHelper::LoadFileToString(Content, *MacrossArray_FullPath[ScrollingIndex]);
+        Content = this->ReflectFileToScreen_UTIL(ScrollingIndex);
         OutContent = Content;
         SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[ScrollingIndex]));
     }
@@ -89,22 +90,22 @@ void UMacrosManager::ScrollBackward(FString &OutContent)
     if (ScrollingIndex < 0)
     {
         ScrollingIndex = FullPathsNum;
-        FFileHelper::LoadFileToString(Content, *MacrossArray_FullPath[ScrollingIndex]);
+        Content = this->ReflectFileToScreen_UTIL(ScrollingIndex);
         OutContent = Content;
         SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[ScrollingIndex]));
     }
     else
     {
-        FFileHelper::LoadFileToString(Content, *MacrossArray_FullPath[ScrollingIndex]);
+        Content = this->ReflectFileToScreen_UTIL(ScrollingIndex);
         OutContent = Content;
         SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[ScrollingIndex]));
     }
 }
 
-FString UMacrosManager::ReflectFileToScreen_INIT()
+FString UMacrosManager::ReflectFileToScreen_UTIL(int32 CurrentIndex)
 {
     FString Content;
-    FFileHelper::LoadFileToString(Content, *MacrossArray_FullPath[0]);
+    FFileHelper::LoadFileToString(Content, *MacrossArray_FullPath[CurrentIndex]);
 
     return Content;
 }

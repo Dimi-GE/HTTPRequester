@@ -38,5 +38,5 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	int32 ScrollingIndex = 0;
 
-	FString ReflectFileToScreen_INIT();
+	FString ReflectFileToScreen_UTIL(int32 CurrentIndex);
 };
