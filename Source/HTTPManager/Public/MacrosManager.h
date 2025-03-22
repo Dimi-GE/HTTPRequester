@@ -3,8 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+// Editor Utility Widget
 #include "EditorUtilityWidget.h"
 #include "Components/TextBlock.h"
+// HTTP Interfaces
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+// JSON
+#include "Json.h"
+#include "JsonUtilities.h"
 
 #include "MacrosManager.generated.h"
 
@@ -18,6 +26,10 @@ class UMacrosManager : public UEditorUtilityWidget
 	
 	public:
 
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* SelectedFileName_TXT;
+
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary", meta = (ExpandBoolAsExecs = "bIsSucceed"))
 	void GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Output);
 
@@ -27,8 +39,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	void ScrollBackward(FString &OutContent);
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SelectedFileName_TXT;
+	// Function to check if folder exists
+	UFUNCTION(BlueprintCallable, Category="HTTP Utilities")
+	void SearchInRepository(const FString& RepoOwner, const FString& RepoName, const FString& FolderPath);
 
 	private:
 
@@ -37,6 +50,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	TArray<FString> MacrossArray_FullPath;
 
 	int32 ScrollingIndex = 0;
+
+	// Callback function when request completes
+	void OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	FString ReflectFileToScreen_UTIL(int32 CurrentIndex);
 };

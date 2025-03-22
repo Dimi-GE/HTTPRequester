@@ -2,10 +2,7 @@
 
 
 #include "HTTPRequester.h"
-// HTTP Request
-#include "HttpModule.h"
-#include "Interfaces/IHttpRequest.h"
-#include "Interfaces/IHttpResponse.h"
+
 #include "HAL/PlatformFilemanager.h"
 
 void UHTTPRequester::DownloadFile(const FString& URL, bool bSaveToFile, FOnDownloadResponse Callback)

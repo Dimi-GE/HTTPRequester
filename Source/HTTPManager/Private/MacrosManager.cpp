@@ -102,6 +102,44 @@ void UMacrosManager::ScrollBackward(FString &OutContent)
     }
 }
 
+void UMacrosManager::SearchInRepository(const FString &RepoOwner, const FString &RepoName, const FString &FolderPath)
+{
+	// Build the API request URL
+	FString URL = FString::Printf(TEXT("https://api.github.com/repos/%s/%s/contents/Macros/%s"), 
+		*RepoOwner, *RepoName, *FolderPath);
+	
+	// Create the HTTP request
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &UMacrosManager::OnSearchInRepositoryResponse);
+	Request->SetURL(URL);
+	Request->SetVerb(TEXT("GET"));
+	Request->ProcessRequest();
+}
+
+void UMacrosManager::OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!bWasSuccessful || !Response.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Request failed or invalid response."));
+		return;
+	}
+
+	// Check HTTP response code
+	int32 ResponseCode = Response->GetResponseCode();
+	if (ResponseCode == 200)
+	{
+		UE_LOG(LogTemp, Log, TEXT("✅ Folder exists!"));
+	}
+	else if (ResponseCode == 404)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("❌ Folder does NOT exist."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Unexpected response: %d"), ResponseCode);
+	}
+}
+
 FString UMacrosManager::ReflectFileToScreen_UTIL(int32 CurrentIndex)
 {
     FString Content;

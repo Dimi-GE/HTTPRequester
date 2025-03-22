@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+// Editor Utility Widget
 #include "EditorUtilityWidget.h"
 #include "UObject/NoExportTypes.h"
+// HTTP Interfaces
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
