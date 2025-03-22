@@ -1,0 +1,20 @@
+Hi there,
+Thanks for reaching out to Ghostery!
+
+
+1. Click on the Ghostery icon to open the panel.
+2. Click the three stacked lines to open a menu.
+3. Select the “Privacy protection” option.
+4. Scroll down to the “Custom filters” to enable those.
+5. Copy and paste the following filters:
+ - to hide all svg's on a page example.com##svg
+ - to block loading svg files from network: *.svg^$domain=example.com
+6. Click the “Allow trusted scriptlets” checkbox.
+7. Click the “Save” button.
+
+
+Those steps should help. Let us know how it goes!
+
+Here for any further questions!
+Best,
+Ghostery Support

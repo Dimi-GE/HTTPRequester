@@ -1,0 +1,14 @@
+Hi there,
+Thanks for reaching out to Ghostery!
+ 
+This issue appears to sporadically occurs in macOS Monterey specifically. While we're still working on steps how to reproduce the exact behavior, we found that the following methods may resolve the issue on that OS which is shipped with Safari 14 and has the latest version of 17. Here are steps to follow:
+
+1. We know that restarting apps and device is the first thing we can try, and we assume you already tried it. However, please try after reinstalling the app and restarting the device if you haven't done.
+2. Please, make sure that you have the latest version of Safari on macOS Monterey. You can check if there is any Safari update in “Software update” menu of “System Preferences.app”.
+3. If you're still suffering from the issue, close Safari and other apps, then open “Terminal.app”. After that, run /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f -R /Applications/Safari.app and wait for the command to complete (you'll see the line starting with “%” character again). Then restart the device.
+ 
+Please, let us know if it helps, or you have any additional questions.
+ 
+Here for any further questions!
+Best,
+Ghostery Support
