@@ -124,20 +124,73 @@ void UMacrosManager::OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttp
 		return;
 	}
 
-	// Check HTTP response code
-	int32 ResponseCode = Response->GetResponseCode();
-	if (ResponseCode == 200)
-	{
-		UE_LOG(LogTemp, Log, TEXT("✅ Folder exists!"));
-	}
-	else if (ResponseCode == 404)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("❌ Folder does NOT exist."));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Unexpected response: %d"), ResponseCode);
-	}
+    int32 ResponseCode = Response->GetResponseCode();
+    if (ResponseCode == 200) // Folder exists
+    {
+        TArray<TSharedPtr<FJsonValue>> JsonArray;
+        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+
+        if (FJsonSerializer::Deserialize(Reader, JsonArray))
+        {
+            TMap<FString, int64> RemoteFiles; // Store filename + size
+
+            for (const TSharedPtr<FJsonValue>& Item : JsonArray)
+            {
+                TSharedPtr<FJsonObject> Object = Item->AsObject();
+                if (Object.IsValid())
+                {
+                    FString Type = Object->GetStringField("type");
+                    if (Type == "file") 
+                    {
+                        FString FileName = Object->GetStringField("name");
+                        int64 FileSize = Object->GetIntegerField("size");
+
+                        RemoteFiles.Add(FileName, FileSize);
+                    }
+                }
+            }
+
+            if (RemoteFiles.Num() > 0)
+            {
+                UE_LOG(LogTemp, Log, TEXT("✅ Folder contains %d files."), RemoteFiles.Num());
+
+                // Compare with local files
+                FString LocalPath = FPaths::ProjectDir() + TEXT("Macros/Reviews/");
+                CompareRepoToLocal(LocalPath, RemoteFiles);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("📂 Folder is empty or only contains subfolders."));
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON response."));
+        }
+    }
+    else if (ResponseCode == 404)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("❌ Folder does NOT exist."));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Unexpected response: %d"), ResponseCode);
+    }
+
+	// // Check HTTP response code
+	// int32 ResponseCode = Response->GetResponseCode();
+	// if (ResponseCode == 200)
+	// {
+	// 	UE_LOG(LogTemp, Log, TEXT("✅ Folder exists!"));
+	// }
+	// else if (ResponseCode == 404)
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("❌ Folder does NOT exist."));
+	// }
+	// else
+	// {
+	// 	UE_LOG(LogTemp, Error, TEXT("Unexpected response: %d"), ResponseCode);
+	// }
 }
 
 FString UMacrosManager::ReflectFileToScreen_UTIL(int32 CurrentIndex)
@@ -146,4 +199,56 @@ FString UMacrosManager::ReflectFileToScreen_UTIL(int32 CurrentIndex)
     FFileHelper::LoadFileToString(Content, *MacrossArray_FullPath[CurrentIndex]);
 
     return Content;
+}
+
+void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
+{
+    IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+    if (!PlatformFile.DirectoryExists(*LocalPath))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Local path does not exist: %s"), *LocalPath);
+        return;
+    }
+
+    // Scan directory
+    OutFiles.Empty();
+    PlatformFile.FindFiles(OutFiles, *LocalPath, nullptr); // nullptr means "all file types"
+
+    UE_LOG(LogTemp, Log, TEXT("Found %d local files."), OutFiles.Num());
+}
+
+void UMacrosManager::CompareRepoToLocal(const FString &LocalPath, const TMap<FString, int64>& RemoteFiles)
+{
+    IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+    if (!PlatformFile.DirectoryExists(*LocalPath))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Local path does not exist: %s"), *LocalPath);
+        return;
+    }
+
+    for (const TPair<FString, int64>& RemoteFile : RemoteFiles)
+    {
+        FString LocalFilePath = LocalPath + RemoteFile.Key;
+
+        if (PlatformFile.FileExists(*LocalFilePath))
+        {
+            int64 LocalFileSize = PlatformFile.FileSize(*LocalFilePath);
+
+            if (LocalFileSize == RemoteFile.Value)
+            {
+                UE_LOG(LogTemp, Log, TEXT("✅ File exists & size matches: %s"), *RemoteFile.Key);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("⚠️ File exists but size differs (local: %lld, remote: %lld): %s"), 
+                    LocalFileSize, RemoteFile.Value, *RemoteFile.Key);
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("⬇️ File missing locally, needs download: %s"), *RemoteFile.Key);
+        }
+    }
 }

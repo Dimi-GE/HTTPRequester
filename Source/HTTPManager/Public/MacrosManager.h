@@ -43,6 +43,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION(BlueprintCallable, Category="HTTP Utilities")
 	void SearchInRepository(const FString& RepoOwner, const FString& RepoName, const FString& FolderPath);
 
+	UFUNCTION(BlueprintCallable, Category="HTTP")
+	void GetLocalFiles(const FString& LocalPath, TArray<FString>& OutFiles);
+
 	private:
 
 	// Utilities
@@ -53,6 +56,8 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	// Callback function when request completes
 	void OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void CompareRepoToLocal(const FString& LocalPath, const TMap<FString, int64>& RemoteFiles);
+
 
 	FString ReflectFileToScreen_UTIL(int32 CurrentIndex);
 };
