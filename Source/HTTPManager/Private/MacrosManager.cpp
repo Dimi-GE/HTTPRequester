@@ -8,7 +8,7 @@
 void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Output)
 {
     // Declare defaults
-    FString Directory = FPaths::ProjectDir() + TEXT("Macros/Reviews/");
+    FString Directory = FPaths::ProjectDir() + TEXT("Macros/");
     FString ExtensionFilter = TEXT("*.csv");
     TArray<FString> FoundFiles;
 
