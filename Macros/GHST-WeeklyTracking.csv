@@ -1,5 +1,5 @@
-New: 60 + 16(Spam: 40 + 15, Relevant: 20 + 1); Closed: 18;
-BPR: 143 + 10(153); Relevant: 30; Irrelevant: 23;
+New: 60 + 16 + 16(Spam: 40 + 15 + 7, Relevant: 20 + 1 + 9); Closed: 18 + 11; Left: 1;
+BPR: 143 + 10 + 11; Relevant: 30 + 8; Irrelevant: 23 + 18; Closed: 79; Left: 85;
 
 New:
 Twitch:
@@ -13,5 +13,5 @@ Twitch;
 Spotify;
 YouTube;
 
-Manage to as JP to test Hulu;
+Manage to ask JP to test Hulu;
 https://ghostery.slack.com/archives/C049193BHA4/p1738853083389799
