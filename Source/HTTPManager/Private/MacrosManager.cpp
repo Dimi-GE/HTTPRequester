@@ -5,12 +5,22 @@
 
 #include "HAL/PlatformFilemanager.h"
 
-void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Output)
+void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)
 {
     // Declare defaults
-    FString Directory = FPaths::ProjectDir() + TEXT("Macros/");
+    FString Directory = FPaths::ProjectDir() + TEXT("Macros/") + MacroCategoryFolder + TEXT("/");
     FString ExtensionFilter = TEXT("*.csv");
     TArray<FString> FoundFiles;
+
+    // Build the path to macros
+    // if (MacroCategoryFolder.IsEmpty())
+    // {
+    //     Directory = FPaths::ProjectDir() + TEXT("Macros/");
+    // }
+    // else
+    // {
+    //     Directory = FPaths::ProjectDir() + TEXT("Macros/") + MacroCategoryFolder + TEXT("/");
+    // }
 
     // Clear the defaults
     MacrosArray.Empty();
@@ -36,7 +46,7 @@ void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Outp
         MacrosArray.Add(FPaths::GetCleanFilename(FilePath));
     }
 
-    Output = this->ReflectFileToScreen_UTIL(ScrollingIndex);
+    MacroContent = this->ReflectFileToScreen_UTIL(ScrollingIndex);
     SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[ScrollingIndex]));
     bIsSucceed = true;
 }

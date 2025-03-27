@@ -16,9 +16,13 @@
 
 #include "MacrosManager.generated.h"
 
-/**
- * 
- */
+// UENUM(BlueprintType)
+// enum EMacroCategory
+// {
+// 	YouTube,
+// 	Reviews
+// };
+
 UCLASS()
 class UMacrosManager : public UEditorUtilityWidget
 {
@@ -30,8 +34,11 @@ class UMacrosManager : public UEditorUtilityWidget
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SelectedFileName_TXT;
 
+	// UPROPERTY(BlueprintReadOnly)
+	// EMacroCategory MacroCategoryEnum;
+
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary", meta = (ExpandBoolAsExecs = "bIsSucceed"))
-	void GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Output);
+	void GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder);
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	void ScrollForward(FString &OutContent);
