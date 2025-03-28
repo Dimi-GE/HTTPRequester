@@ -1,5 +1,5 @@
-New: 60 + 16 + 16(Spam: 40 + 15 + 7, Relevant: 20 + 1 + 9); Closed: 18 + 11; Left: 1;
-BPR: 143 + 10 + 11; Relevant: 30 + 8; Irrelevant: 23 + 18; Closed: 79; Left: 85;
+New: 60 + 16 + 16 + 36(Spam: 40 + 15 + 7 + 26, Relevant: 20 + 1 + 9 + 9); Closed: 18 + 11; Left: 10;
+BPR: 143 + 10 + 11 + 21; Relevant: 30 + 8; Irrelevant: 23 + 18; Closed: 79; Left: 106;
 
 New:
 Twitch:
