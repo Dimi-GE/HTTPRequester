@@ -5,7 +5,7 @@
 
 #include "HAL/PlatformFilemanager.h"
 
-void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)
+void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)
 {
     // Declare defaults
     FString Directory = FPaths::ProjectDir() + TEXT("Macros/") + MacroCategoryFolder + TEXT("/");
@@ -37,7 +37,9 @@ void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Macr
 
     // Check if array is not empty - assumed to handle more then 1 macro
     int32 MacrosNum = FoundFiles.Num();
-    if (MacrosNum <= 0) {UE_LOG(LogTemp, Error, TEXT("UMacrosManager::Failed to load files - returning")); bIsSucceed = false; return;}
+    if (MacrosNum <= 0) {UE_LOG(LogTemp, Error, TEXT("UMacrosManager::Failed to load files - returning")); bIsSucceed = false; 
+        CustomLog_FText_UTIL("GetFilesByCategory", "Failed to load files - returning");
+        return;}
 
     // Obtain full paths to reflect the macros and remove full path to reflect the files name
     for (const FString& FilePath : FoundFiles)
@@ -49,12 +51,15 @@ void UMacrosManager::GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &Macr
     MacroContent = this->ReflectFileToScreen_UTIL(ScrollingIndex);
     SelectedFileName_TXT->SetText(FText::FromString(MacrosArray[ScrollingIndex]));
     bIsSucceed = true;
+    CustomLog_FText_UTIL("GetFilesByCategory", "Files are successfully retrieved");
 }
 
 void UMacrosManager::ScrollForward(FString &OutContent)
 {
     // Check if array is not empty - assumed to handle more then 1 macro
-    if (MacrossArray_FullPath.IsEmpty()) {UE_LOG(LogTemp, Error, TEXT("UMacrosManager::The MacrossArray_FullPath is empty - returning")); return;}
+    if (MacrossArray_FullPath.IsEmpty()) {UE_LOG(LogTemp, Error, TEXT("UMacrosManager::The MacrossArray_FullPath is empty - returning"));
+        CustomLog_FText_UTIL("ScrollForward", "The MacrossArray_FullPath is empty - returning");
+        return;}
 
     // Declare function's defaults
     FString Content;
@@ -85,7 +90,9 @@ void UMacrosManager::ScrollForward(FString &OutContent)
 void UMacrosManager::ScrollBackward(FString &OutContent)
 {
     // Check if array is not empty - assumed to handle more then 1 macro
-    if (MacrossArray_FullPath.IsEmpty()) {UE_LOG(LogTemp, Error, TEXT("UMacrosManager::The MacrossArray_FullPath is empty - returning")); return;}
+    if (MacrossArray_FullPath.IsEmpty()) {UE_LOG(LogTemp, Error, TEXT("UMacrosManager::The MacrossArray_FullPath is empty - returning"));
+        CustomLog_FText_UTIL("ScrollBackward", "The MacrossArray_FullPath is empty - returning");
+        return;}
 
     // Declare function's defaults
     FString Content;
@@ -131,6 +138,7 @@ void UMacrosManager::OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttp
 	if (!bWasSuccessful || !Response.IsValid())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Request failed or invalid response."));
+        CustomLog_FText_UTIL("OnSearchInRepositoryResponse", "Request failed or invalid response - returning");
 		return;
 	}
 
@@ -211,22 +219,28 @@ FString UMacrosManager::ReflectFileToScreen_UTIL(int32 CurrentIndex)
     return Content;
 }
 
-void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
+void UMacrosManager::CustomLog_FText_UTIL(FString FunctionName, FString LogText)
 {
-    IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-
-    if (!PlatformFile.DirectoryExists(*LocalPath))
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Local path does not exist: %s"), *LocalPath);
-        return;
-    }
-
-    // Scan directory
-    OutFiles.Empty();
-    PlatformFile.FindFiles(OutFiles, *LocalPath, nullptr); // nullptr means "all file types"
-
-    UE_LOG(LogTemp, Log, TEXT("Found %d local files."), OutFiles.Num());
+    FString logBuild = CustomLogPrefix + FunctionName + TEXT("::") + LogText + TEXT(".");
+    CustomLog_TXT->SetText(FText::FromString(logBuild));
 }
+
+// void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
+// {
+//     IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+//     if (!PlatformFile.DirectoryExists(*LocalPath))
+//     {
+//         UE_LOG(LogTemp, Warning, TEXT("Local path does not exist: %s"), *LocalPath);
+//         return;
+//     }
+
+//     // Scan directory
+//     OutFiles.Empty();
+//     PlatformFile.FindFiles(OutFiles, *LocalPath, nullptr); // nullptr means "all file types"
+
+//     UE_LOG(LogTemp, Log, TEXT("Found %d local files."), OutFiles.Num());
+// }
 
 void UMacrosManager::CompareRepoToLocal(const FString &LocalPath, const TMap<FString, int64>& RemoteFiles)
 {
@@ -235,6 +249,7 @@ void UMacrosManager::CompareRepoToLocal(const FString &LocalPath, const TMap<FSt
     if (!PlatformFile.DirectoryExists(*LocalPath))
     {
         UE_LOG(LogTemp, Warning, TEXT("Local path does not exist: %s"), *LocalPath);
+        CustomLog_FText_UTIL("CompareRepoToLocal", (TEXT("Local path does not exist: ") + LocalPath));
         return;
     }
 

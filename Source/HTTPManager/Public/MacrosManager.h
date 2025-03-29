@@ -34,11 +34,14 @@ class UMacrosManager : public UEditorUtilityWidget
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SelectedFileName_TXT;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* CustomLog_TXT;
+
 	// UPROPERTY(BlueprintReadOnly)
 	// EMacroCategory MacroCategoryEnum;
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary", meta = (ExpandBoolAsExecs = "bIsSucceed"))
-	void GetFilesInDirectory_Reviews(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder);
+	void GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder);
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	void ScrollForward(FString &OutContent);
@@ -50,14 +53,15 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION(BlueprintCallable, Category="HTTP Utilities")
 	void SearchInRepository(const FString& RepoOwner, const FString& RepoName, const FString& FolderPath);
 
-	UFUNCTION(BlueprintCallable, Category="HTTP")
-	void GetLocalFiles(const FString& LocalPath, TArray<FString>& OutFiles);
+	// UFUNCTION(BlueprintCallable, Category="HTTP")
+	// void GetLocalFiles(const FString& LocalPath, TArray<FString>& OutFiles);
 
 	private:
 
 	// Utilities
 	TArray<FString> MacrosArray;
 	TArray<FString> MacrossArray_FullPath;
+	FString CustomLogPrefix = "Custom Log Output:\n";
 
 	int32 ScrollingIndex = 0;
 
@@ -65,6 +69,6 @@ class UMacrosManager : public UEditorUtilityWidget
 	void OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void CompareRepoToLocal(const FString& LocalPath, const TMap<FString, int64>& RemoteFiles);
 
-
 	FString ReflectFileToScreen_UTIL(int32 CurrentIndex);
+	void CustomLog_FText_UTIL(FString FunctionName, FString LogText);
 };
