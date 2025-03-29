@@ -147,52 +147,33 @@ void UMacrosManager::OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttp
     {
         TArray<TSharedPtr<FJsonValue>> JsonArray;
         TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
-
+        
         if (FJsonSerializer::Deserialize(Reader, JsonArray))
         {
-            TMap<FString, int64> RemoteFiles; // Store filename + size
+            UE_LOG(LogTemp, Log, TEXT("JSON Response contains %d items:"), JsonArray.Num());
 
-            for (const TSharedPtr<FJsonValue>& Item : JsonArray)
+            for (TSharedPtr<FJsonValue> Value : JsonArray)
             {
-                TSharedPtr<FJsonObject> Object = Item->AsObject();
-                if (Object.IsValid())
+                if (Value.IsValid() && Value->Type == EJson::Object)
                 {
-                    FString Type = Object->GetStringField("type");
-                    if (Type == "file") 
-                    {
-                        FString FileName = Object->GetStringField("name");
-                        int64 FileSize = Object->GetIntegerField("size");
-
-                        RemoteFiles.Add(FileName, FileSize);
-                    }
+                    TSharedPtr<FJsonObject> Object = Value->AsObject();
+                    FString Name = Object->GetStringField(TEXT("name"));
+                    FString Type = Object->GetStringField(TEXT("type"));
+        
+                    UE_LOG(LogTemp, Log, TEXT("Name: %s, Type: %s"), *Name, *Type);
                 }
             }
-
-            if (RemoteFiles.Num() > 0)
-            {
-                UE_LOG(LogTemp, Log, TEXT("✅ Folder contains %d files."), RemoteFiles.Num());
-
-                // Compare with local files
-                FString LocalPath = FPaths::ProjectDir() + TEXT("Macros/Reviews/");
-                CompareRepoToLocal(LocalPath, RemoteFiles);
-            }
-            else
-            {
-                UE_LOG(LogTemp, Warning, TEXT("📂 Folder is empty or only contains subfolders."));
-            }
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON response."));
         }
     }
     else if (ResponseCode == 404)
     {
         UE_LOG(LogTemp, Warning, TEXT("❌ Folder does NOT exist."));
+        CustomLog_FText_UTIL("OnSearchInRepositoryResponse", "Folder does NOT exist.");
     }
     else
     {
         UE_LOG(LogTemp, Error, TEXT("Unexpected response: %d"), ResponseCode);
+        CustomLog_FText_UTIL("OnSearchInRepositoryResponse", (TEXT("Unexpected response: ") + ResponseCode));
     }
 
 	// // Check HTTP response code
