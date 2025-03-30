@@ -49,9 +49,12 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	void ScrollBackward(FString &OutContent);
 
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
+	void FetchFilesRecursive_SYNC(FString FullURLPath);
+
 	// Function to check if folder exists
-	UFUNCTION(BlueprintCallable, Category="HTTP Utilities")
-	void SearchInRepository(const FString& RepoOwner, const FString& RepoName, const FString& FolderPath);
+	// UFUNCTION(BlueprintCallable, Category="HTTP Utilities")
+	// void SearchInRepository(const FString& RepoOwner, const FString& RepoName, const FString& FolderPath);
 
 	// UFUNCTION(BlueprintCallable, Category="HTTP")
 	// void GetLocalFiles(const FString& LocalPath, TArray<FString>& OutFiles);
@@ -66,8 +69,8 @@ class UMacrosManager : public UEditorUtilityWidget
 	int32 ScrollingIndex = 0;
 
 	// Callback function when request completes
-	void OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-	void CompareRepoToLocal(const FString& LocalPath, const TMap<FString, int64>& RemoteFiles);
+	// void OnSearchInRepositoryResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	// void CompareRepoToLocal(const FString& LocalPath, const TMap<FString, int64>& RemoteFiles);
 
 	FString ReflectFileToScreen_UTIL(int32 CurrentIndex);
 	void CustomLog_FText_UTIL(FString FunctionName, FString LogText);
