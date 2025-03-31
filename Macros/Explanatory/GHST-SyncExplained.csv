@@ -1,0 +1,16 @@
+Hi there,
+Thanks for reaching out to Ghostery!
+ 
+Most of the Ghostery setting, like trackers' database, filters, and block lists, are synchronized automatically. If you are signed in to your account, the “Privacy protection” section of the settings will also be synchronized among the browsers where you are signed in.
+ 
+However, if you have a trusted list of websites, it would require a manual transfer between browsers. Syncing in general comes with security challenges. The solutions our engineers have considered each come with trade-offs.
+ 
+This feature request is on our radar, and you can track its progress here:
+GitHub Issue #1153
+However, as it tight to a broader map of the development process, we can not provide an actual release date just yet.
+ 
+Your feedback helps us shape the future of Ghostery—thank you for contributing!
+ 
+Here for any further questions!
+Best,
+Ghostery Support
