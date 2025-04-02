@@ -261,6 +261,11 @@ void UMacrosManager::CustomLog_FText_UTIL(FString FunctionName, FString LogText)
     CustomLog_TXT->SetText(FText::FromString(logBuild));
 }
 
+void UMacrosManager::CheckLocalChanges(FString FilePath)
+{
+    FDateTime LastModified = IFileManager::Get().GetTimeStamp(*FilePath);
+}
+
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
 // {
 //     IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
