@@ -1,0 +1,15 @@
+{
+    "Macros":{
+        "LastKnownCommit": "n/a",
+        "Categories": {
+          "Communicative": "clean",
+          "Explanatory": "clean",
+          "FeaturesExplained": "clean",
+          "HowTo's": "clean",
+          "Misc": "clean",
+          "Reviews": "clean",
+          "YouTube": "clean",
+          "GHST-WeeklyTracking.csv": "clean"
+        }
+      }
+}
