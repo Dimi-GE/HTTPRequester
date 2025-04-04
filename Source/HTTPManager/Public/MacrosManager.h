@@ -53,10 +53,10 @@ class UMacrosManager : public UEditorUtilityWidget
 	void FetchFilesRecursive_SYNC(FString FullURLPath);
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
-	void CheckLocalChanges(FString LocalFolderPath);
+	FDateTime CheckLocalChanges(FString LocalFolderPath);
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
-	void GetLastModifiedFromGitHub(FString RepositoryURL);
+	void GetLastModifiedFromGitHub(FString RepositoryURL, FDateTime LocalChangesTimeStamp, bool &bIsSyncNeeded);
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary", meta = (ExpandBoolAsExecs = "bIsSyncNeeded"))
 	void SyncLastCommitWithLocalChanges(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded);

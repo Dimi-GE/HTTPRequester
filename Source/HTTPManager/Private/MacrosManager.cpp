@@ -260,7 +260,7 @@ void UMacrosManager::CustomLog_FText_UTIL(FString FunctionName, FString LogText)
     CustomLog_TXT->SetText(FText::FromString(logBuild));
 }
 
-void UMacrosManager::CheckLocalChanges(FString LocalFolderPath)
+FDateTime UMacrosManager::CheckLocalChanges(FString LocalFolderPath)
 {
     FDateTime LastModifiedUTC = IFileManager::Get().GetTimeStamp(*LocalFolderPath);
     
@@ -269,9 +269,11 @@ void UMacrosManager::CheckLocalChanges(FString LocalFolderPath)
 
     FString LastModifiedStr = LastModifiedLocal.ToString();
     UE_LOG(LogTemp, Warning, TEXT("Last modified (Local Time): %s"), *LastModifiedStr);
+
+    return LastModifiedLocal;
 }
 
-void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL)
+void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FDateTime LocalChangesTimeStamp, bool &bIsSyncNeeded)
 {
     FString Url = RepositoryURL;
 
@@ -280,7 +282,7 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL)
     Request->SetVerb("GET");
 
     Request->OnProcessRequestComplete().BindLambda(
-        [this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
+        [this, LocalChangesTimeStamp, &bIsSyncNeeded](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
         {
             if (bSuccess && Response.IsValid())
             {
@@ -311,17 +313,24 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL)
                         FDateTime ParsedTime;
                         FDateTime::ParseIso8601(*DateString, ParsedTime);
                         FDateTime LastModifiedLocal = ParsedTime + (FDateTime::Now() - FDateTime::UtcNow());
+
+                        if(LocalChangesTimeStamp != LastModifiedLocal) { bIsSyncNeeded = false; }
+
                         // FDateTime LastCommitTime = ParseGitHubTimestamp(DateString);
-                        UE_LOG(LogTemp, Warning, TEXT("Last GitHub commit: %s"), *LastModifiedLocal.ToString());
+                        UE_LOG(LogTemp, Warning, TEXT("Last GitHub Commit: %s"), *LastModifiedLocal.ToString());
+                        UE_LOG(LogTemp, Warning, TEXT("Last Local Changes: %s"), *LocalChangesTimeStamp.ToString());
+
                     }
                     else
                     {
                         UE_LOG(LogTemp, Error, TEXT("Commits.Num() is less or equal to 0"));
+                        return;
                     }
                 }
                 else
                 {
                     UE_LOG(LogTemp, Error, TEXT("Failed to deserialize the JsonObject."));
+                    return;
                 }
             }
             else
@@ -338,7 +347,8 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL)
 
 void UMacrosManager::SyncLastCommitWithLocalChanges(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded)
 {
-    
+    FDateTime LocalTimeStamp = this->CheckLocalChanges(LocalFolderPath);
+    this->GetLastModifiedFromGitHub(RepositoryURL, LocalTimeStamp, bIsSyncNeeded);
 }
 
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
