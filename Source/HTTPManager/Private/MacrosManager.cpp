@@ -263,7 +263,17 @@ void UMacrosManager::CustomLog_FText_UTIL(FString FunctionName, FString LogText)
 
 void UMacrosManager::CheckLocalChanges(FString FilePath)
 {
-    FDateTime LastModified = IFileManager::Get().GetTimeStamp(*FilePath);
+    FDateTime LastModifiedUTC = IFileManager::Get().GetTimeStamp(*FilePath);
+
+    // Convert UTC to Unix Timestamp
+    int64 UnixTimestamp = LastModifiedUTC.ToUnixTimestamp();
+
+    // Convert Unix Timestamp to Local Time
+    FDateTime LastModifiedLocal = FDateTime::FromUnixTimestamp(UnixTimestamp);
+
+    FString LastModifiedStr = LastModifiedLocal.ToString();
+    UE_LOG(LogTemp, Warning, TEXT("Last modified (Local Time): %s"), *LastModifiedStr);
+    UE_LOG(LogTemp, Warning, TEXT("Last modified (Local Time): %s"), *LastModifiedUTC.ToString());
 }
 
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)

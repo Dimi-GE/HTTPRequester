@@ -52,6 +52,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	void FetchFilesRecursive_SYNC(FString FullURLPath);
 
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
+	void CheckLocalChanges(FString FilePath);
+
 	// Function to check if folder exists
 	// UFUNCTION(BlueprintCallable, Category="HTTP Utilities")
 	// void SearchInRepository(const FString& RepoOwner, const FString& RepoName, const FString& FolderPath);
@@ -74,5 +77,4 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	FString ReflectFileToScreen_UTIL(int32 CurrentIndex);
 	void CustomLog_FText_UTIL(FString FunctionName, FString LogText);
-	void CheckLocalChanges(FString FilePath);
 };
