@@ -152,7 +152,6 @@ void UMacrosManager::FetchFilesRecursive_SYNC(FString FullURLPath)
                         }
                         else if (Type == "dir") // It's a subfolder, fetch its contents
                         {
-
                             FString SubFullURLPath = FullURLPath / Path + TEXT("/");
                             FetchFilesRecursive_SYNC(SubFullURLPath); // Recursively fetch files
                         }
@@ -261,19 +260,85 @@ void UMacrosManager::CustomLog_FText_UTIL(FString FunctionName, FString LogText)
     CustomLog_TXT->SetText(FText::FromString(logBuild));
 }
 
-void UMacrosManager::CheckLocalChanges(FString FilePath)
+void UMacrosManager::CheckLocalChanges(FString LocalFolderPath)
 {
-    FDateTime LastModifiedUTC = IFileManager::Get().GetTimeStamp(*FilePath);
-
-    // Convert UTC to Unix Timestamp
-    int64 UnixTimestamp = LastModifiedUTC.ToUnixTimestamp();
-
-    // Convert Unix Timestamp to Local Time
-    FDateTime LastModifiedLocal = FDateTime::FromUnixTimestamp(UnixTimestamp);
+    FDateTime LastModifiedUTC = IFileManager::Get().GetTimeStamp(*LocalFolderPath);
+    
+    // Convert to local time
+    FDateTime LastModifiedLocal = LastModifiedUTC + (FDateTime::Now() - FDateTime::UtcNow());
 
     FString LastModifiedStr = LastModifiedLocal.ToString();
     UE_LOG(LogTemp, Warning, TEXT("Last modified (Local Time): %s"), *LastModifiedStr);
-    UE_LOG(LogTemp, Warning, TEXT("Last modified (Local Time): %s"), *LastModifiedUTC.ToString());
+}
+
+void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL)
+{
+    FString Url = RepositoryURL;
+
+    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+    Request->SetURL(Url);
+    Request->SetVerb("GET");
+
+    Request->OnProcessRequestComplete().BindLambda(
+        [this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
+        {
+            if (bSuccess && Response.IsValid())
+            {
+                UE_LOG(LogTemp, Warning, TEXT("HTTP Response Code: %d"), Response->GetResponseCode());
+
+                FString RateLimit = Response->GetHeader("X-RateLimit-Remaining");
+                FString RateReset = Response->GetHeader("X-RateLimit-Reset");
+                UE_LOG(LogTemp, Warning, TEXT("Rate limit remaining: %s, resets at: %s"), *RateLimit, *RateReset);
+
+                FString ResponseStr = Response->GetContentAsString();
+                // UE_LOG(LogTemp, Warning, TEXT("GitHub API Response: %s"), *ResponseStr);
+                
+                TArray<TSharedPtr<FJsonValue>> CommitArray;
+                TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());                
+
+                if (FJsonSerializer::Deserialize(Reader, CommitArray) && CommitArray.Num() > 0)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("The JsonObject was successfully serialazide."));
+
+                    // Navigate the JSON structure to find the commit date
+                    TSharedPtr<FJsonObject> CommitObject = CommitArray[0]->AsObject();
+                    if (CommitObject.IsValid())
+                    {
+                        FString DateString = CommitObject->GetObjectField(TEXT("commit"))
+                                                         ->GetObjectField(TEXT("author"))
+                                                         ->GetStringField(TEXT("date"));
+
+                        FDateTime ParsedTime;
+                        FDateTime::ParseIso8601(*DateString, ParsedTime);
+                        FDateTime LastModifiedLocal = ParsedTime + (FDateTime::Now() - FDateTime::UtcNow());
+                        // FDateTime LastCommitTime = ParseGitHubTimestamp(DateString);
+                        UE_LOG(LogTemp, Warning, TEXT("Last GitHub commit: %s"), *LastModifiedLocal.ToString());
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Error, TEXT("Commits.Num() is less or equal to 0"));
+                    }
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Error, TEXT("Failed to deserialize the JsonObject."));
+                }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("HTTP Response Code: %d"), Response->GetResponseCode());
+                UE_LOG(LogTemp, Error, TEXT("Request failed!"));
+                return;
+            }
+        });
+
+    UE_LOG(LogTemp, Warning, TEXT("Sending request to: %s"), *Url);
+    Request->ProcessRequest();
+}
+
+void UMacrosManager::SyncLastCommitWithLocalChanges(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded)
+{
+    
 }
 
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)

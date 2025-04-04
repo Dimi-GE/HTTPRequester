@@ -53,7 +53,13 @@ class UMacrosManager : public UEditorUtilityWidget
 	void FetchFilesRecursive_SYNC(FString FullURLPath);
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
-	void CheckLocalChanges(FString FilePath);
+	void CheckLocalChanges(FString LocalFolderPath);
+
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
+	void GetLastModifiedFromGitHub(FString RepositoryURL);
+
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary", meta = (ExpandBoolAsExecs = "bIsSyncNeeded"))
+	void SyncLastCommitWithLocalChanges(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded);
 
 	// Function to check if folder exists
 	// UFUNCTION(BlueprintCallable, Category="HTTP Utilities")
