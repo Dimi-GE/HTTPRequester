@@ -15,6 +15,16 @@ Twitch;
 Spotify;
 YouTube;
 
+Firefox:
+1*
+It doesn't work. It says:
+YouTube blocking you from watching ad-free videos?
+We know you rely on Ghostery for a smooth YouTube experience. Until a more refined solution emerges, here’s a temporary fix.
+1. Allow Ghostery in private windows
+
+If I watch in a Private window, it doesn't block any ads. So what's the sense of even having this extension?
+
+
 Manage to ask JP to test Hulu;
 https://ghostery.slack.com/archives/C049193BHA4/p1738853083389799
 
@@ -46,5 +56,15 @@ iOS 18;
 Keep in mind the contribution subscription information in Paddle.
 
 07.04.25 - 11.04.25
-New: 62 (Spam: 45, Relevant: 1); Closed: 0; Left: (1+62);
+New: 67 (Spam: 50, Relevant: 17); Closed: 9; Left: 8;
 BPR: 8; Relevant: ?; Irrelevant: ?; Closed: 0; Left: 213;
+
+
+Notes:
+
+The ultimate goal of using statistics is figuring out important domains on flight;
+
+- check the limitations of Zendesk in context of handling 10,000 websites;(trigger)
+- investigate webhooks - for the same purpose;
+- all 10,000 websites on whotracks.me;
+- connect webhook to Zendes API in order to get the most from whotracks.me;
