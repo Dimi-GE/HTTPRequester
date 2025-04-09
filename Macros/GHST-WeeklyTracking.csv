@@ -56,8 +56,8 @@ iOS 18;
 Keep in mind the contribution subscription information in Paddle.
 
 07.04.25 - 11.04.25
-New: 67 + 30 (Spam: 50 + 25, Relevant: 17 + 5); Closed: 22; Left: 0;
-BPR: 8 + 15; Relevant: ?; Irrelevant: ?; Closed: 0; Left: 228;
+New: 67 + 30 + 17(Spam: 50 + 25 + 12, Relevant: 17 + 5 + 5); Closed: 27; Left: 0;
+BPR: 8 + 15 + 12; Relevant: ?; Irrelevant: ?; Closed: 0; Left: 240;
 
 
 Notes:
