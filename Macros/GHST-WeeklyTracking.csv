@@ -57,7 +57,7 @@ Keep in mind the contribution subscription information in Paddle.
 
 07.04.25 - 11.04.25
 New: 67 + 30 + 25 + 23 + 15(Spam: 50 + 25 + 18 + 19 + 15, Relevant: 17 + 5 + 7 + 5); Closed: 33; Left: 1;
-BPR: 8 + 15 + 14 + 11 + 17; Relevant: 18; Irrelevant: 26; Closed: 44; Left: 221;
+BPR: 8 + 15 + 14 + 11 + 18; Relevant: 25; Irrelevant: 35; Closed: 60; Left: 205;
 
 
 Issues.
@@ -73,3 +73,4 @@ Notes:
 The ultimate goal of using statistics is figuring out important domains on flight;
 
 create and describe the feature request in a way I understand how should it work - adding tags to important domains; (keeping in mind there are 10,000 of those)
+
