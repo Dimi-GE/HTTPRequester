@@ -74,3 +74,16 @@ The ultimate goal of using statistics is figuring out important domains on fligh
 
 create and describe the feature request in a way I understand how should it work - adding tags to important domains; (keeping in mind there are 10,000 of those)
 
+14.04.25 - 18.04.25
+
+New: 45(Spam: 31, Relevant: 14); Closed: 0; Left: 14;
+BPR: 39; Relevant: ?; Irrelevant: ?; Closed: 0; Left: 227;
+
+
+Issues.
+New:
+
+BPG:
+civit.ai is constantly flashing - the extensin tries to remove some elements, which seem to refresh dynamically;
+booking flight tickets;
+shopping payments;
