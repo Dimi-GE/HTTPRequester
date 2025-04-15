@@ -76,8 +76,8 @@ create and describe the feature request in a way I understand how should it work
 
 14.04.25 - 18.04.25
 
-New: 50(Spam: 36, Relevant: 14); Closed: 12; Left: 2;
-BPR: 44; Relevant: ?; Irrelevant: ?; Closed: 0; Left: 232;
+New: 50 + 15(Spam: 36 + 14, Relevant: 14 + 1); Closed: 14; Left: 1;
+BPR: 44 + 8; Relevant: ?; Irrelevant: ?; Closed: 0; Left: 240;
 
 
 Issues.
