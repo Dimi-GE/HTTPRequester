@@ -76,14 +76,16 @@ create and describe the feature request in a way I understand how should it work
 
 14.04.25 - 18.04.25
 
-New: 50 + 15(Spam: 36 + 14, Relevant: 14 + 1); Closed: 14; Left: 1;
-BPR: 44 + 8; Relevant: ?; Irrelevant: ?; Closed: 0; Left: 240;
+New: 50 + 19(Spam: 36 + 18, Relevant: 14 + 1); Closed: 14; Left: 1;
+BPR: 44 + 11; Relevant: 5; Irrelevant: 19; Closed: 24; Left: 216;
 
 
 Issues.
 New:
 
 BPG:
-civit.ai is constantly flashing - the extensin tries to remove some elements, which seem to refresh dynamically;
-booking flight tickets;
-shopping payments;
+n-tv.de - cookie popup, ads; Around 10 reports during a period; (6)
+Browsers: Firefox - 6; Chrome - 1;
+Version: 10.4.28(5); 10.4.29(1);
+
+civitai.com (5)
