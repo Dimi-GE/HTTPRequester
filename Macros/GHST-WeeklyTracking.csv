@@ -76,9 +76,13 @@ create and describe the feature request in a way I understand how should it work
 
 14.04.25 - 18.04.25
 
-New: 50 + 19(Spam: 36 + 18, Relevant: 14 + 1); Closed: 14; Left: 1;
-BPR: 44 + 11; Relevant: 5; Irrelevant: 19; Closed: 24; Left: 216;
+New: 50 + 19 + 19(Spam: 36 + 18 + 17, Relevant: 14 + 1); Closed: 14; Left: 1;
+BPR: 44 + 11 + 3; Relevant: 10; Irrelevant: 24; Closed: 24; Left: 212;
 
+R: 5;
+I: 2;
+
+L: 205;
 
 Issues.
 New:
