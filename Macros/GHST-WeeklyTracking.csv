@@ -76,13 +76,13 @@ create and describe the feature request in a way I understand how should it work
 
 14.04.25 - 18.04.25
 
-New: 50 + 19 + 19(Spam: 36 + 18 + 17, Relevant: 14 + 1); Closed: 14; Left: 1;
-BPR: 44 + 11 + 3; Relevant: 15; Irrelevant: 26; Closed: 41; Left: 205;
+New: 50 + 19 + 25 + 21(Spam: 36 + 18 + 20 + 19, Relevant: 14 + 1 + 3 + 4); Closed: 21; Left: 1;
+BPR: 44 + 11 + 7; Relevant: 18; Irrelevant: 31; Closed: 59; Left: 201;
 
 R: 0;
 I: 0;
 
-L: 205;
+L: 201;
 
 Issues.
 New:
@@ -93,7 +93,5 @@ Browsers: Firefox - 6; Chrome - 1;
 Version: 10.4.28(5); 10.4.29(1);
 
 civitai.com (5)
-
-Notes:
 
 inform users about us taking actions on the issue with Edge;
