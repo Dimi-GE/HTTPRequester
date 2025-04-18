@@ -55,8 +55,8 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	FDateTime CheckLocalChanges(FString LocalFolderPath);
 
-	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
-	void GetLastModifiedFromGitHub(FString RepositoryURL, FDateTime LocalChangesTimeStamp, bool &bIsSyncNeeded);
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary", meta = (ExpandBoolAsExecs = "bIsSyncNeeded"))
+	void GetLastModifiedFromGitHub(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded);
 
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary", meta = (ExpandBoolAsExecs = "bIsSyncNeeded"))
 	void SyncLastCommitWithLocalChanges(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded);
