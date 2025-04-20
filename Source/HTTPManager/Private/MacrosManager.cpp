@@ -318,8 +318,12 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString Lo
                         if(LocalTimeStamp != GitHubTimeStamp)
                         {
                             bIsSyncNeeded = true;
-                            UE_LOG(LogTemp, Warning, TEXT("Last GitHub Commit: %s"), *LocalTimeStamp.ToString());
-                            UE_LOG(LogTemp, Warning, TEXT("Last Local Changes: %s"), *GitHubTimeStamp.ToString());
+                            // FString logBuild = (TEXT("Last Local Changes: %s\n"), *LocalTimeStamp.ToString()) + (TEXT("Last GitHub Commit: %s"), *GitHubTimeStamp.ToString());
+                            FString logBuild = FString::Printf(TEXT("Last Local Changes: %s\nLast GitHub Commit: %s"), *LocalTimeStamp.ToString(), *GitHubTimeStamp.ToString());
+                            CustomLog_TXT->SetText(FText::FromString(logBuild));
+                            
+                            UE_LOG(LogTemp, Warning, TEXT("Last Local Changes: %s"), *LocalTimeStamp.ToString());
+                            UE_LOG(LogTemp, Warning, TEXT("Last GitHub Commit: %s"), *GitHubTimeStamp.ToString());
                         }
                         else
                         {
