@@ -30,7 +30,6 @@ class UMacrosManager : public UEditorUtilityWidget
 	
 	public:
 
-
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SelectedFileName_TXT;
 
