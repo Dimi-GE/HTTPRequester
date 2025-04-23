@@ -326,17 +326,24 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString Lo
                         FDateTime LocalTimeStamp = this->CheckLocalChanges(LocalFolderPath);
                         FDateTime GitHubTimeStamp = ParsedTime + (FDateTime::Now() - FDateTime::UtcNow());
 
-                        if(LocalTimeStamp != GitHubTimeStamp)
+                        FTimespan Difference = LocalTimeStamp - GitHubTimeStamp;
+
+                        if (FMath::Abs(Difference.GetTotalMinutes()) > 2.0)
                         {
                             bIsSyncNeeded = true;
                             FString logBuild = FString::Printf(TEXT("Last Local Changes: %s\nLast GitHub Commit: %s"), *LocalTimeStamp.ToString(), *GitHubTimeStamp.ToString());
                             CustomLog_TXT->SetText(FText::FromString(logBuild));
+
+                            SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(2));
                             
                             UE_LOG(LogTemp, Warning, TEXT("Last Local Changes: %s"), *LocalTimeStamp.ToString());
                             UE_LOG(LogTemp, Warning, TEXT("Last GitHub Commit: %s"), *GitHubTimeStamp.ToString());
                         }
                         else
                         {
+                            SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(0));
+                            FString logBuild = FString::Printf(TEXT("All changes are synchronized."));
+                            CustomLog_TXT->SetText(FText::FromString(logBuild));
                             UE_LOG(LogTemp, Warning, TEXT("The sync is not needed."));
                         }
                     }
