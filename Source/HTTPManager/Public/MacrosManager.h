@@ -27,6 +27,9 @@ UCLASS()
 class UMacrosManager : public UEditorUtilityWidget
 {
 	GENERATED_BODY()
+
+	protected:
+    virtual void NativePreConstruct() override;
 	
 	public:
 
@@ -35,6 +38,9 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* CustomLog_TXT;
+
+    UPROPERTY(meta = (BindWidget))
+    class UImage* SyncImage;
 
 	// UPROPERTY(BlueprintReadOnly)
 	// EMacroCategory MacroCategoryEnum;

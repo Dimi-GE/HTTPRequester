@@ -3,7 +3,18 @@
 
 #include "MacrosManager.h"
 
+#include "Components/Image.h"
 #include "HAL/PlatformFilemanager.h"
+
+extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
+
+void UMacrosManager::NativePreConstruct()
+{
+    Super::NativePreConstruct();
+
+    SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
+    UE_LOG(LogTemp, Log, TEXT("NativePreConstruct::NativePreConstruction is fired."));
+}
 
 void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)
 {
