@@ -101,13 +101,13 @@ inform users about us taking actions on the issue with Edge;
 
 21.04.25 - 25.04.25
 
-New: 84 + 27 + 15(Spam: 69 + 20 + 14, Relevant: 15 + 7 + 1); Closed: 20; Left: 3;
-BPR: 52 + 19 + 2; Relevant: 15; Irrelevant: 17; Closed: ; Left: 239;
+New: 84 + 27 + 26(Spam: 69 + 20 + 22, Relevant: 15 + 7 + 4); Closed: 23; Left: 2;
+BPR: 52 + 19 + 4; Relevant: 28; Irrelevant: 34; Closed: ; Left: 211;
 
-R: 0;
-I: 0;
+R: 13;
+I: 17;
 
-L: 239;
+L: 211;
 
 Prior:
 R: 0;
