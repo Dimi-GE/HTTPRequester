@@ -1,7 +1,9 @@
-Hi there,   
-Thanks for reaching out to Ghostery and your interest in Ghostery Enterprise! 
+Hi there,
+Thanks for reaching out to Ghostery and your interest in Ghostery Enterprise!
 
-The regular Ghostery distribution supports Group Policy based configuration.  The managed configuration provides the option to disable setup, disable some user interface elements or add a website to allow-list, but there is no console “for visibility into each agent/extension deployed”.
+
+The regular Ghostery distribution supports Group Policy based configuration.
+The managed configuration provides the option to disable setup, disable some user interface elements, or add a website to allow-list.
 
 Below you can find documentation crafted by our engineering team.
 https://hackmd.io/@ghostery/Bk5RXQf-Jg
@@ -16,4 +18,4 @@ The pricing depends on the size of your company:
 
 Here for any further questions!
 Best,
- Ghostery Team
+Ghostery Team
