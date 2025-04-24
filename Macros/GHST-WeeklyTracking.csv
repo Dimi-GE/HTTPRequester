@@ -101,13 +101,13 @@ inform users about us taking actions on the issue with Edge;
 
 21.04.25 - 25.04.25
 
-New: 84 + 27 + 26 + 13(Spam: 69 + 20 + 22 + 12, Relevant: 15 + 7 + 4 + 1); Closed: 23; Left: 3;
-BPR: 52 + 19 + 4; Relevant: 28; Irrelevant: 34; Closed: ; Left: 211;
+New: 84 + 27 + 26 + 17(Spam: 69 + 20 + 22 + 14, Relevant: 15 + 7 + 4 + 3); Closed: 23; Left: 35
+BPR: 52 + 19 + 4 + 13; Relevant: 37; Irrelevant: 49; Closed: 86; Left: 204;
 
-R: 13;
-I: 17;
+R: 9;
+I: 12;
 
-L: 211;
+L: 204;
 
 Prior:
 R: 0;
@@ -125,4 +125,5 @@ Notes:
 check the slack-related functionality in Zendesk:
 https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
 
-Ask for Netflix log in issue with Ghostery enabled;
+check the issue with yandex email:
+https://ghostery.zendesk.com/agent/tickets/85771
