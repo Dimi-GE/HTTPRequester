@@ -326,9 +326,9 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString Lo
                         FDateTime LocalTimeStamp = this->CheckLocalChanges(LocalFolderPath);
                         FDateTime GitHubTimeStamp = ParsedTime + (FDateTime::Now() - FDateTime::UtcNow());
 
-                        FTimespan Difference = LocalTimeStamp - GitHubTimeStamp;
+                        FTimespan Difference = GitHubTimeStamp - LocalTimeStamp;
 
-                        if (FMath::Abs(Difference.GetTotalMinutes()) > 2.0)
+                        if (GitHubTimeStamp > LocalTimeStamp && FMath::Abs(Difference.GetTotalMinutes()) > 2.0)
                         {
                             bIsSyncNeeded = true;
                             FString logBuild = FString::Printf(TEXT("Last Local Changes: %s\nLast GitHub Commit: %s"), *LocalTimeStamp.ToString(), *GitHubTimeStamp.ToString());
