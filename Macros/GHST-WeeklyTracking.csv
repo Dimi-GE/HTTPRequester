@@ -101,13 +101,13 @@ inform users about us taking actions on the issue with Edge;
 
 21.04.25 - 25.04.25
 
-New: 84 + 27 + 26 + 17 + 19(Spam: 69 + 20 + 22 + 14 + 15, Relevant: 15 + 7 + 4 + 3 + 4); Closed: 27; Left: 3;
-BPR: 52 + 19 + 4 + 13; Relevant: 37; Irrelevant: 49; Closed: 86; Left: 204;
+New: 84 + 27 + 26 + 17 + 20(Spam: 69 + 20 + 22 + 14 + 16, Relevant: 15 + 7 + 4 + 3 + 4); Closed: 29; Left: 1;
+BPR: 52 + 19 + 4 + 13 + 15; Relevant: 37; Irrelevant: 49; Closed: 86; Left: 219;
 
 R: 0;
 I: 0;
 
-L: 204;
+L: 219;
 
 Prior:
 R: 0;
@@ -127,3 +127,7 @@ https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&ut
 
 check the issue with yandex email:
 https://ghostery.zendesk.com/agent/tickets/85771
+
+Check reviews for positive feedback on the Ghostery UI.
+
+Craft responses for Russian language reviews;
