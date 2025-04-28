@@ -13,7 +13,6 @@ void UMacrosManager::NativePreConstruct()
     Super::NativePreConstruct();
 
     SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
-    UE_LOG(LogTemp, Log, TEXT("NativePreConstruct::NativePreConstruction is fired."));
 }
 
 void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)

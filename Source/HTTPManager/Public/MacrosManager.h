@@ -30,7 +30,8 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	protected:
     virtual void NativePreConstruct() override;
-	
+	void Destruct();
+
 	public:
 
 	UPROPERTY(meta = (BindWidget))
