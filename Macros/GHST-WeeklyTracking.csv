@@ -134,13 +134,13 @@ Craft responses for Russian language reviews;
 
 28/04/25 - 02/05/25
 
-New: 45 + 10(Spam: 36 + 8, Relevant: 9 + 2); Closed: 10; Left: 1;
-BPR: 63 + 11; Relevant: ; Irrelevant: ; Closed: ; Left: 270;
+New: 45 + 14(Spam: 36 + 11, Relevant: 9 + 3); Closed: 11; Left: 1;
+BPR: 63 + 11; Relevant: ; Irrelevant: ; Closed: ; Left: 267;
 
-R: 3;
-I: 9;
+R: 0;
+I: 0;
 
-L: 282;
+L: 267;
 
 Prior:
 R: 0;
