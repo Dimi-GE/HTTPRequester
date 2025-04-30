@@ -2,6 +2,9 @@
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
 
+// Messaging
+#include "Misc/MessageDialog.h"
+
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
 {
     static FSoftObjectPath MatPath(TEXT("/Game/Mats/UMG/M_SyncNotify.M_SyncNotify"));
@@ -18,4 +21,10 @@ UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
     UE_LOG(LogTemp, Log, TEXT("ThrowDynamicInstance::Native throw is fired."));
 
     return DynMat;
+}
+
+void ThrowDialogMessage(FString Message)
+{
+    FText MsgTitle = FText::FromString(TEXT("Warning!"));
+    FMessageDialog::Open(EAppMsgType::Ok, FText::FromString((TEXT("%s"), *Message)), &MsgTitle);
 }

@@ -30,6 +30,7 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	protected:
     virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
 	void Destruct();
 
 	public:

@@ -7,12 +7,20 @@
 #include "HAL/PlatformFilemanager.h"
 
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
+extern void ThrowDialogMessage(FString Message);
 
 void UMacrosManager::NativePreConstruct()
 {
     Super::NativePreConstruct();
 
+}
+
+void UMacrosManager::NativeConstruct()
+{
+    Super::NativePreConstruct();
+    
     SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
+    ThrowDialogMessage("Remember to sync changes before continue any further.");
 }
 
 void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)
