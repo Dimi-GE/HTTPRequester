@@ -23,6 +23,17 @@ void UMacrosManager::NativeConstruct()
     ThrowDialogMessage("Remember to sync changes before continue any further.");
 }
 
+void UMacrosManager::Destruct()
+{
+    // ThrowDialogMessage("Remember to sync changes before continue any further.");
+    UE_LOG(LogTemp, Error, TEXT("Destruct fired"));
+}
+
+void UMacrosManager::RequestDestroyWindow()
+{
+    UE_LOG(LogTemp, Error, TEXT("Destruct fired"));
+}
+
 void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)
 {
     // Declare defaults

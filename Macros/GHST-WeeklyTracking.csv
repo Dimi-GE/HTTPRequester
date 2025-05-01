@@ -134,7 +134,7 @@ Craft responses for Russian language reviews;
 
 28/04/25 - 02/05/25
 
-New: 45 + 14 + 21(Spam: 36 + 11 + 16, Relevant: 9 + 3 + 5); Closed: 17; Left: 0;
+New: 45 + 14 + 21 + 16(Spam: 36 + 11 + 16 + 7, Relevant: 9 + 3 + 5 + 9); Closed: 22; Left: 4;
 BPR: 63 + 11; Relevant: ; Irrelevant: ; Closed: ; Left: 267;
 
 R: 0;
@@ -155,6 +155,10 @@ New:
 BPG:
 
 Notes:
+
+Craft a message for YouTube;
+Craft mesasge for a company user;
+
 check the slack-related functionality in Zendesk:
 https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
 
@@ -162,6 +166,6 @@ check the issue with yandex email:
 https://ghostery.zendesk.com/agent/tickets/85771
 
 Check reviews for positive feedback on the Ghostery UI - rework current ones to text;
-Search for testimonials from other browsers;
+Search for testimonials from other browsers - Safari is left;
 
 Craft responses for Russian language reviews;
