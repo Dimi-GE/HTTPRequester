@@ -23,6 +23,13 @@ void UMacrosManager::NativeConstruct()
     ThrowDialogMessage("Remember to sync changes before continue any further.");
 }
 
+void UMacrosManager::NativeDestruct()
+{
+    Super::NativeDestruct();
+
+    ThrowDialogMessage("Remember to sync changes before continue any further.");
+}
+
 void UMacrosManager::Destruct()
 {
     // ThrowDialogMessage("Remember to sync changes before continue any further.");
