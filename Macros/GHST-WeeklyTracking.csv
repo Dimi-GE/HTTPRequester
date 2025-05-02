@@ -134,7 +134,7 @@ Craft responses for Russian language reviews;
 
 28/04/25 - 02/05/25
 
-New: 45 + 14 + 21 + 16(Spam: 36 + 11 + 16 + 7, Relevant: 9 + 3 + 5 + 9); Closed: 22; Left: 4;
+New: 45 + 14 + 21 + 16 + 20(Spam: 36 + 11 + 16 + 7 + 16, Relevant: 9 + 3 + 5 + 9 + 4); Closed: 30; Left: 0;
 BPR: 63 + 11; Relevant: ; Irrelevant: ; Closed: ; Left: 267;
 
 R: 0;
