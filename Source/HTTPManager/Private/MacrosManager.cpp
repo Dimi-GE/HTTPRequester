@@ -13,11 +13,12 @@ void UMacrosManager::NativePreConstruct()
 {
     Super::NativePreConstruct();
 
+    // ThrowDialogMessage("Remember to sync changes before continue any further.");
 }
 
 void UMacrosManager::NativeConstruct()
 {
-    Super::NativePreConstruct();
+    Super::NativeConstruct();
     
     SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
     // ThrowDialogMessage("Remember to sync changes before continue any further.");
@@ -27,7 +28,7 @@ void UMacrosManager::NativeDestruct()
 {
     Super::NativeDestruct();
 
-    ThrowDialogMessage("Remember to sync changes before continue any further.");
+    // ThrowDialogMessage("Remember to sync changes before continue any further.");
 }
 
 void UMacrosManager::Destruct()

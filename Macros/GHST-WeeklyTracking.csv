@@ -135,15 +135,15 @@ Craft responses for Russian language reviews;
 28/04/25 - 02/05/25
 
 New: 45 + 14 + 21 + 16 + 20(Spam: 36 + 11 + 16 + 7 + 16, Relevant: 9 + 3 + 5 + 9 + 4); Closed: 30; Left: 0;
-BPR: 63 + 11; Relevant: ; Irrelevant: ; Closed: ; Left: 267;
+BPR: 63 + 11 + 15 + 13 + 11; Relevant: ; Irrelevant: ; Closed: 18; Left: 288;
 
 R: 0;
 I: 0;
 
-L: 267;
+L: 288;
 
 Prior:
-R: 33 - ;
+R: 0; (35 + 124 YT-related)
 I: 0;
 
 L: 9 + 159;
