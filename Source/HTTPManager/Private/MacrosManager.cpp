@@ -5,9 +5,10 @@
 
 #include "Components/Image.h"
 #include "Components/Button.h"
+#include "Components/ExpandableArea.h" 
 
 #include "HAL/PlatformFilemanager.h"
-
+// Externals
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
 extern void ThrowDialogMessage(FString Message);
 
@@ -49,7 +50,7 @@ void UMacrosManager::RequestDestroyWindow()
 
 void UMacrosManager::RSSInit()
 {
-    FString RSSInitPath = TEXT("D:/[DGE]/Projects/HTTPRequester/RSS/RSSInit.json");
+    FString RSSInitPath = FPaths::ProjectDir() + TEXT("\\RSS\\RSSInit.json");
     FString JsonString;
 
     if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
@@ -65,9 +66,6 @@ void UMacrosManager::RSSInit()
     {
         for (const TSharedPtr<FJsonValue>& Item : JsonArray)
         {
-            // if (!Item.IsValid() || !Item->AsObject().IsValid())
-            //     continue;
-    
             TSharedPtr<FJsonObject> RootObject = Item->AsObject();
             if (RootObject->HasField(TEXT("lifecycleinit")))
             {
@@ -76,9 +74,11 @@ void UMacrosManager::RSSInit()
                 {
                     TSharedPtr<FJsonObject> MacrosManager = LifecycleInit->GetObjectField(TEXT("MacrosManager"));
     
-                    // 🎯 Finally, read SyncState
+                    bool bIsInitialized = MacrosManager->GetBoolField(TEXT("bIsInitialized"));
+                    MacrosManager_EXP->SetIsEnabled(bIsInitialized);
+
                     int32 SyncState = MacrosManager->GetIntegerField(TEXT("SyncState"));
-                    UE_LOG(LogTemp, Warning, TEXT("SyncState = %d"), SyncState);
+                    SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(SyncState));
                 }
                 else
                 {
@@ -95,9 +95,9 @@ void UMacrosManager::RSSInit()
     {
         UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON."));
         UE_LOG(LogTemp, Warning, TEXT("JSON Raw: %s"), *JsonString);
+        MacrosManager_EXP->SetIsEnabled(false);
         return;
     }
-    UE_LOG(LogTemp, Warning, TEXT("System initialization triggered."));
 }
 
 void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)

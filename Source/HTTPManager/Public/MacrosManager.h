@@ -52,6 +52,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	UPROPERTY(meta = (BindWidget))
 	class UButton* RSSInit_B;
 
+	UPROPERTY(meta = (BindWidget))
+	class UExpandableArea* MacrosManager_EXP;
+
 	// UPROPERTY(BlueprintReadOnly)
 	// EMacroCategory MacroCategoryEnum;
 

@@ -18,8 +18,6 @@ UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
         DynMat->SetScalarParameterValue(FName("SwitchParameter"), ScalarValue);
     }
 
-    UE_LOG(LogTemp, Log, TEXT("ThrowDynamicInstance::Native throw is fired."));
-
     return DynMat;
 }
 
