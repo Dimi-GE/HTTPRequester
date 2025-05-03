@@ -4,6 +4,8 @@
 #include "MacrosManager.h"
 
 #include "Components/Image.h"
+#include "Components/Button.h"
+
 #include "HAL/PlatformFilemanager.h"
 
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
@@ -20,8 +22,11 @@ void UMacrosManager::NativeConstruct()
 {
     Super::NativeConstruct();
     
-    SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
+    // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
     // ThrowDialogMessage("Remember to sync changes before continue any further.");
+
+    // Buttons Dynamic Delegates
+    RSSInit_B->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
 }
 
 void UMacrosManager::NativeDestruct()
@@ -40,6 +45,59 @@ void UMacrosManager::Destruct()
 void UMacrosManager::RequestDestroyWindow()
 {
     UE_LOG(LogTemp, Error, TEXT("Destruct fired"));
+}
+
+void UMacrosManager::RSSInit()
+{
+    FString RSSInitPath = TEXT("D:/[DGE]/Projects/HTTPRequester/RSS/RSSInit.json");
+    FString JsonString;
+
+    if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to load file."));
+        return;
+    }
+
+    TArray<TSharedPtr<FJsonValue>> JsonArray;
+    TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+    
+    if (FJsonSerializer::Deserialize(Reader, JsonArray))
+    {
+        for (const TSharedPtr<FJsonValue>& Item : JsonArray)
+        {
+            // if (!Item.IsValid() || !Item->AsObject().IsValid())
+            //     continue;
+    
+            TSharedPtr<FJsonObject> RootObject = Item->AsObject();
+            if (RootObject->HasField(TEXT("lifecycleinit")))
+            {
+                TSharedPtr<FJsonObject> LifecycleInit = RootObject->GetObjectField(TEXT("lifecycleinit"));
+                if (LifecycleInit->HasField(TEXT("MacrosManager")))
+                {
+                    TSharedPtr<FJsonObject> MacrosManager = LifecycleInit->GetObjectField(TEXT("MacrosManager"));
+    
+                    // 🎯 Finally, read SyncState
+                    int32 SyncState = MacrosManager->GetIntegerField(TEXT("SyncState"));
+                    UE_LOG(LogTemp, Warning, TEXT("SyncState = %d"), SyncState);
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Error, TEXT("Failed to find MacrosManager field."));
+                }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed to find lifecycleinit field."));
+            }
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON."));
+        UE_LOG(LogTemp, Warning, TEXT("JSON Raw: %s"), *JsonString);
+        return;
+    }
+    UE_LOG(LogTemp, Warning, TEXT("System initialization triggered."));
 }
 
 void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)

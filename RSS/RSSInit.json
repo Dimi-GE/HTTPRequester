@@ -10,7 +10,11 @@
     {
         "lifecycleinit":
         {
-            "bIsFirstLaunch": true
-        }   
+            "MacrosManager":
+            {
+                "SyncState": 1
+            }  
+        }
+ 
     }
 ]

@@ -49,6 +49,9 @@ class UMacrosManager : public UEditorUtilityWidget
     UPROPERTY(meta = (BindWidget))
     class UImage* SyncImage;
 
+	UPROPERTY(meta = (BindWidget))
+	class UButton* RSSInit_B;
+
 	// UPROPERTY(BlueprintReadOnly)
 	// EMacroCategory MacroCategoryEnum;
 
@@ -79,6 +82,10 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	// UFUNCTION(BlueprintCallable, Category="HTTP")
 	// void GetLocalFiles(const FString& LocalPath, TArray<FString>& OutFiles);
+
+	// Delegates
+	UFUNCTION()
+	void RSSInit();
 
 	private:
 
