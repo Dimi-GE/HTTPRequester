@@ -9,6 +9,9 @@
 #include "Json.h"
 #include "JsonUtilities.h"
 
+// Forward Declared Functions
+TSharedPtr<FJsonObject> ThrowRSSInitROOT_RWUtil(FString JSONPath, int32 ReadWrite);
+
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
 {
     static FSoftObjectPath MatPath(TEXT("/Game/Mats/UMG/M_SyncNotify.M_SyncNotify"));
@@ -31,59 +34,79 @@ void ThrowDialogMessage(FString Message)
     FMessageDialog::Open(EAppMsgType::Ok, FText::FromString((TEXT("%s"), *Message)), &MsgTitle);
 }
 
-TSharedPtr<FJsonObject> ThrowRSSInitObject(FString JSONObject)
+TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject)
 {
-    FString RSSInitPath = FPaths::ProjectDir() + TEXT("\\RSS\\RSSInit.json");
-    FString JsonString;
 
-    if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to load file."));
-        TSharedPtr<FJsonObject> MacrosManager = nullptr;
-        return MacrosManager;
-    }
+    // FString JsonString;
 
-    TArray<TSharedPtr<FJsonValue>> JsonArray;
-    TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+    // if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("Failed to load file."));
+    //     TSharedPtr<FJsonObject> MacrosManager = nullptr;
+    //     return MacrosManager;
+    // }
+
+    
+    // TArray<TSharedPtr<FJsonValue>> JsonArray;
+    // TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+
+    FString RSSInitPath = TEXT("\\RSS\\RSSInit.json");
     TSharedPtr<FJsonObject> MacrosManager;
-    
-    if (FJsonSerializer::Deserialize(Reader, JsonArray))
-    {
-        for (const TSharedPtr<FJsonValue>& Item : JsonArray)
-        {
-            TSharedPtr<FJsonObject> RootObject = Item->AsObject();
-            if (RootObject->HasField(TEXT("lifecycleinit")))
-            {
-                TSharedPtr<FJsonObject> LifecycleInit = RootObject->GetObjectField(TEXT("LifecycleInit"));
-                if (LifecycleInit->HasField(TEXT("MacrosManager")))
-                {
-                    MacrosManager = LifecycleInit->GetObjectField(TEXT("MacrosManager"));
-    
-                    // bool bIsInitialized = MacrosManager->GetBoolField(TEXT("bIsInitialized"));
-                    // MacrosManager_EXP->SetIsEnabled(bIsInitialized);
 
-                    // int32 SyncState = MacrosManager->GetIntegerField(TEXT("SyncState"));
-                    // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(SyncState));
-                }
-                else
-                {
-                    MacrosManager = nullptr;
-                    UE_LOG(LogTemp, Error, TEXT("Failed to find MacrosManager field."));
-                }
-            }
-            else
-            {
-                MacrosManager = nullptr;
-                UE_LOG(LogTemp, Error, TEXT("Failed to find LifecycleInit field."));
-            }
+    TSharedPtr<FJsonObject> RootObject = ThrowRSSInitROOT_RWUtil(RSSInitPath, 0);
+
+    if (RootObject->HasField(RSSInitModule))
+    {
+        TSharedPtr<FJsonObject> LifecycleInit = RootObject->GetObjectField(RSSInitModule);
+        if (LifecycleInit->HasField(JSONObject))
+        {
+            MacrosManager = LifecycleInit->GetObjectField(JSONObject);
+
+            // bool bIsInitialized = MacrosManager->GetBoolField(TEXT("bIsInitialized"));
+            // MacrosManager_EXP->SetIsEnabled(bIsInitialized);
+
+            // int32 SyncState = MacrosManager->GetIntegerField(TEXT("SyncState"));
+            // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(SyncState));
         }
     }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON."));
-        UE_LOG(LogTemp, Warning, TEXT("JSON Raw: %s"), *JsonString);
-        MacrosManager = nullptr;
-    }
+    
+    // if (FJsonSerializer::Deserialize(Reader, JsonArray))
+    // {
+    //     for (const TSharedPtr<FJsonValue>& Item : JsonArray)
+    //     {
+    //         TSharedPtr<FJsonObject> RootObject = Item->AsObject();
+    //         if (RootObject->HasField(TEXT("LifecycleInit")))
+    //         {
+    //             TSharedPtr<FJsonObject> LifecycleInit = RootObject->GetObjectField(TEXT("LifecycleInit"));
+    //             if (LifecycleInit->HasField(TEXT("MacrosManager")))
+    //             {
+    //                 MacrosManager = LifecycleInit->GetObjectField(TEXT("MacrosManager"));
+    
+    //                 // bool bIsInitialized = MacrosManager->GetBoolField(TEXT("bIsInitialized"));
+    //                 // MacrosManager_EXP->SetIsEnabled(bIsInitialized);
+
+    //                 // int32 SyncState = MacrosManager->GetIntegerField(TEXT("SyncState"));
+    //                 // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(SyncState));
+    //             }
+    //             else
+    //             {
+    //                 MacrosManager = nullptr;
+    //                 UE_LOG(LogTemp, Error, TEXT("Failed to find MacrosManager field."));
+    //             }
+    //         }
+    //         else
+    //         {
+    //             MacrosManager = nullptr;
+    //             UE_LOG(LogTemp, Error, TEXT("Failed to find LifecycleInit field."));
+    //         }
+    //     }
+    // }
+    // else
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON."));
+    //     UE_LOG(LogTemp, Warning, TEXT("JSON Raw: %s"), *JsonString);
+    //     MacrosManager = nullptr;
+    // }
 
     return MacrosManager;
 }

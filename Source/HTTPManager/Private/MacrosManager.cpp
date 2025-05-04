@@ -11,7 +11,7 @@
 // Externals
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
 extern void ThrowDialogMessage(FString Message);
-extern TSharedPtr<FJsonObject> ThrowRSSInitObject(FString JSONObject);
+extern TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject);
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -52,7 +52,8 @@ void UMacrosManager::RequestDestroyWindow()
 void UMacrosManager::RSSInit()
 {
     FString JSONObject = TEXT("MacrosManager");
-    TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(JSONObject);
+    FString RSSInitModule = TEXT("LifecycleInit");
+    TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(RSSInitModule, JSONObject);
 
     if(MacrosManager == nullptr)
     {
