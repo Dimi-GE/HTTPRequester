@@ -68,6 +68,16 @@ TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONOb
             // int32 SyncState = MacrosManager->GetIntegerField(TEXT("SyncState"));
             // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(SyncState));
         }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to find JSONObject field."));
+            return nullptr;
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to find %s (RSSInitModule) field."), *RSSInitModule);
+        return nullptr; 
     }
     
     // if (FJsonSerializer::Deserialize(Reader, JsonArray))
@@ -113,7 +123,7 @@ TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONOb
 
 TSharedPtr<FJsonObject> ThrowRSSInitROOT_RWUtil(FString JSONPath, int32 ReadWrite)
 {
-    FString RSSInitPath = FPaths::ProjectDir() + (("%s"), *JSONPath);
+    FString RSSInitPath = FPaths::ProjectDir() + JSONPath;
     FString JsonString;
     
     if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
@@ -130,13 +140,13 @@ TSharedPtr<FJsonObject> ThrowRSSInitROOT_RWUtil(FString JSONPath, int32 ReadWrit
     {
         TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
         FJsonSerializer::Deserialize(Reader, JsonArray);
-        RootObject = JsonArray[0]->AsObject();
+        RootObject = JsonArray[1]->AsObject();
     }
     else if (ReadWrite == 1)
     { 
         TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
         FJsonSerializer::Serialize(JsonArray, Writer);
-        RootObject = JsonArray[0]->AsObject();
+        RootObject = JsonArray[1]->AsObject();
     }
 
     return RootObject;
