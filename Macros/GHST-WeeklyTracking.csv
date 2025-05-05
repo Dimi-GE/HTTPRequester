@@ -171,3 +171,39 @@ Check reviews for positive feedback on the Ghostery UI - rework current ones to 
 Search for testimonials from other browsers - Safari is left;
 
 Craft responses for Russian language reviews;
+
+05/05/25 - 09/05/25
+
+New: 34 (Spam: 23, Relevant: 11); Closed: 0; Left: 11;
+BPR: 32; Relevant: ; Irrelevant: ; Closed: 0; Left: 320;
+
+R: 0;
+I: 0;
+
+L: 320;
+
+Prior:
+R: 0;
+I: 0;
+
+L: ;
+Total: ;
+
+
+Issues.
+New:
+
+BPG:
+
+Notes:
+
+check the slack-related functionality in Zendesk:
+https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
+
+check the issue with yandex email:
+https://ghostery.zendesk.com/agent/tickets/85771
+
+Check reviews for positive feedback on the Ghostery UI - rework current ones to text;
+Search for testimonials from other browsers - Safari is left;
+
+Craft responses for Russian language reviews;
