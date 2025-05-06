@@ -11,7 +11,10 @@
 // Externals
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
 extern void ThrowDialogMessage(FString Message);
-extern TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject);
+extern TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject, int32 ReadWriteBinary);
+
+extern TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile(FString JSONSubPath, int32 ReadWriteBinary);
+extern TSharedPtr<FJsonObject> ThrowRSSInitModule_UTIL(TArray<TSharedPtr<FJsonValue>> JsonArray, FString RSSInitModule, FString RSSInitField);
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -54,18 +57,38 @@ void UMacrosManager::RequestDestroyWindow()
 // The main responsibility is tracking post-sync progress by making a timestamp - it should prevent loosing data after widgets recompilation; 
 void UMacrosManager::RSSInit()
 {
+    FString RSSInitSubPath = TEXT("\\RSS\\RSSInit.json");
     FString RSSInitModule = TEXT("LifecycleInit");
-    FString RSSInitObject = TEXT("MacrosManager");
+    FString RSSInitField = TEXT("MacrosManager");
+    int32 ReadWriteBinary = 0;
 
-    TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(RSSInitModule, RSSInitObject);
-
-    if(MacrosManager == nullptr)
+    TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile(RSSInitSubPath, ReadWriteBinary);
+    if (JsonArray.IsEmpty())
+    {
+        UE_LOG(LogTemp, Error, TEXT("RSSInit::JsonArray is empty - returning."));
+        return;
+    }
+    
+    TSharedPtr<FJsonObject> RSSMacrosManager = ThrowRSSInitModule_UTIL(JsonArray, RSSInitModule, RSSInitField);
+    if (RSSMacrosManager == nullptr)
     {
         UE_LOG(LogTemp, Error, TEXT("RSSInit::MacrosManager is nullptr - returning."));
         return;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful."));
+    UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful - %f."), RSSMacrosManager->GetNumberField(TEXT("SyncState")));
+
+    // TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(RSSInitModule, RSSInitObject, ReadWriteBinary);
+
+    // if(MacrosManager == nullptr)
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("RSSInit::MacrosManager is nullptr - returning."));
+    //     return;
+    // }
+
+    // MacrosManager->SetNumberField(TEXT("SyncState"), 0);
+
+    // UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful."));
     // FString RSSInitPath = FPaths::ProjectDir() + TEXT("\\RSS\\RSSInit.json");
     // FString JsonString;
 
