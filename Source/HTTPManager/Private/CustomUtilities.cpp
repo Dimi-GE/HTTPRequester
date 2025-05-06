@@ -11,6 +11,7 @@
 
 // Forward Declared Functions
 TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWrite);
+TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile(FString JSONSubPath, int32 ReadWriteBinary);
 
 // The function throws material instance dynamic - hard-coded to work M_SyncNotify so far;
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
@@ -38,12 +39,12 @@ void ThrowDialogMessage(FString Message)
 
 // The function takes 2 arguments - module and desired object, returning the last one;
 // Hard-coded to search in the RSSInit.json 
-TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString RSSInitObject)
+TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString RSSInitObject, int32 ReadWriteBinary)
 {
     FString RSSInitSubPath = TEXT("\\RSS\\RSSInit.json");
     TSharedPtr<FJsonObject> JSONObject;
 
-    TSharedPtr<FJsonObject> ModuleAsObject = ThrowRSSInitModule_RWUtil(RSSInitSubPath, 0);
+    TSharedPtr<FJsonObject> ModuleAsObject = ThrowRSSInitModule_RWUtil(RSSInitSubPath, ReadWriteBinary);
 
     if (ModuleAsObject->HasField(RSSInitModule))
     {
@@ -114,7 +115,7 @@ TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString RSSIni
 // The function takes a relative path to JSON file and returns a module as an object - hard-coded to a LifecycleInit module;
 // --> Modules - top layers within the RSSInit.json array;
 // --> Relative Path - subdirectory within the root directory of project;
-TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWrite)
+TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWriteBinary)
 {
     FString RSSInitPath = FPaths::ProjectDir() + JSONSubPath;
     FString JsonString;
@@ -129,13 +130,13 @@ TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 Rea
     JsonArray.Empty();
     TSharedPtr<FJsonObject> ModuleAsObject = nullptr;
 
-    if (ReadWrite == 0)
+    if (ReadWriteBinary == 0)
     {
         TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
         FJsonSerializer::Deserialize(Reader, JsonArray);
         ModuleAsObject = JsonArray[1]->AsObject();
     }
-    else if (ReadWrite == 1)
+    else if (ReadWriteBinary == 1)
     { 
         TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
         FJsonSerializer::Serialize(JsonArray, Writer);
@@ -148,4 +149,73 @@ TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 Rea
     // {
     //     TSharedPtr<FJsonObject> ModuleAsObject = Item->AsObject();
     // }
+}
+
+TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile(FString JSONSubPath, int32 ReadWriteBinary)
+{   
+    FString RSSInitPath = FPaths::ProjectDir() + JSONSubPath;
+    TArray<TSharedPtr<FJsonValue>> JsonArray;
+    JsonArray.Empty();
+    FString JsonString;
+    
+    if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to load file."));
+        return JsonArray;
+    }
+
+    if (ReadWriteBinary == 0)
+    {
+        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+        FJsonSerializer::Deserialize(Reader, JsonArray);
+    }
+    else if (ReadWriteBinary == 1)
+    { 
+        TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+        FJsonSerializer::Serialize(JsonArray, Writer);
+    }
+
+    return JsonArray;
+}
+
+TSharedPtr<FJsonObject> ThrowRSSInitModule_UTIL(TArray<TSharedPtr<FJsonValue>> JsonArray, FString RSSInitModule, FString RSSInitField)
+{
+    TSharedPtr<FJsonObject> RSSInitModule_AsObject = nullptr;
+    TSharedPtr<FJsonObject> RSSInitField_AsObject = nullptr;
+
+
+    if(JsonArray.Num() <= 0)
+    {
+        UE_LOG(LogTemp, Error, TEXT("JsonArray is empty - returning."));
+        return nullptr;
+    }
+
+    RSSInitModule_AsObject = JsonArray[1]->AsObject();
+    
+    if (RSSInitModule_AsObject->HasField(RSSInitModule))
+    {
+        TSharedPtr<FJsonObject> LifecycleInit = RSSInitModule_AsObject->GetObjectField(RSSInitModule);
+        if (LifecycleInit->HasField(RSSInitField))
+        {
+            RSSInitField_AsObject = LifecycleInit->GetObjectField(RSSInitField);
+
+            // bool bIsInitialized = MacrosManager->GetBoolField(TEXT("bIsInitialized"));
+            // MacrosManager_EXP->SetIsEnabled(bIsInitialized);
+
+            // int32 SyncState = MacrosManager->GetIntegerField(TEXT("SyncState"));
+            // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(SyncState));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to find JSONObject field."));
+            return nullptr;
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to find %s (RSSInitModule) field."), *RSSInitModule);
+        return nullptr; 
+    }
+
+    return RSSInitField_AsObject;
 }
