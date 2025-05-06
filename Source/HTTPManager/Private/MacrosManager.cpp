@@ -49,11 +49,15 @@ void UMacrosManager::RequestDestroyWindow()
     UE_LOG(LogTemp, Error, TEXT("Destruct fired"));
 }
 
+
+// The function is designed to initialize the Macros Manager as an editor window; 
+// The main responsibility is tracking post-sync progress by making a timestamp - it should prevent loosing data after widgets recompilation; 
 void UMacrosManager::RSSInit()
 {
-    FString JSONObject = TEXT("MacrosManager");
     FString RSSInitModule = TEXT("LifecycleInit");
-    TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(RSSInitModule, JSONObject);
+    FString RSSInitObject = TEXT("MacrosManager");
+
+    TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(RSSInitModule, RSSInitObject);
 
     if(MacrosManager == nullptr)
     {
@@ -112,6 +116,7 @@ void UMacrosManager::RSSInit()
     // }
 }
 
+// The function is designed to read files under a specific path - bound to work in the editor utility widget blueprint;
 void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent, FString MacroCategoryFolder)
 {
     // Declare defaults
@@ -161,6 +166,7 @@ void UMacrosManager::GetFilesByCategory(bool &bIsSucceed, FString &MacroContent,
     CustomLog_FText_UTIL("GetFilesByCategory", "Files are successfully retrieved");
 }
 
+// The function allows forward scrolling through loaded files - bound to work in the editor utility widget blueprint;
 void UMacrosManager::ScrollForward(FString &OutContent)
 {
     // Check if array is not empty - assumed to handle more then 1 macro
@@ -194,6 +200,7 @@ void UMacrosManager::ScrollForward(FString &OutContent)
     }
 }
 
+// The function allows backward scrolling through loaded files - bound to work in the editor utility widget blueprint;
 void UMacrosManager::ScrollBackward(FString &OutContent)
 {
     // Check if array is not empty - assumed to handle more then 1 macro
@@ -226,6 +233,8 @@ void UMacrosManager::ScrollBackward(FString &OutContent)
     }
 }
 
+// The function is under development - potentially deprecated;
+// Imitates recursion by checking subdirectories for last changes on the repository; 
 void UMacrosManager::FetchFilesRecursive_SYNC(FString FullURLPath)
 {
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
@@ -353,6 +362,7 @@ void UMacrosManager::FetchFilesRecursive_SYNC(FString FullURLPath)
 // 	}
 // }
 
+// Reflects content to a text - bound to work in the editor utility widget blueprint;
 FString UMacrosManager::ReflectFileToScreen_UTIL(int32 CurrentIndex)
 {
     FString Content;
@@ -361,12 +371,14 @@ FString UMacrosManager::ReflectFileToScreen_UTIL(int32 CurrentIndex)
     return Content;
 }
 
+// The function build custom log message - bound to work in the editor utility widget blueprint;
 void UMacrosManager::CustomLog_FText_UTIL(FString FunctionName, FString LogText)
 {
     FString logBuild = CustomLogPrefix + FunctionName + TEXT("::") + LogText + TEXT(".");
     CustomLog_TXT->SetText(FText::FromString(logBuild));
 }
 
+// The function checks when the last local changes were made;
 FDateTime UMacrosManager::CheckLocalChanges(FString LocalFolderPath)
 {
     FDateTime LastModifiedUTC = IFileManager::Get().GetTimeStamp(*LocalFolderPath);
@@ -380,6 +392,7 @@ FDateTime UMacrosManager::CheckLocalChanges(FString LocalFolderPath)
     return LastModifiedLocal;
 }
 
+// The function checks when the last changes were made in files on GitHub;
 void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded)
 {
     FString Url = RepositoryURL;
@@ -467,6 +480,7 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString Lo
     Request->ProcessRequest();
 }
 
+// The function is potentially deprecated - don't remember what it was designed for;
 void UMacrosManager::SyncLastCommitWithLocalChanges(FString RepositoryURL, FString LocalFolderPath, bool &bIsSyncNeeded)
 {
     FDateTime LocalTimeStamp = this->CheckLocalChanges(LocalFolderPath);

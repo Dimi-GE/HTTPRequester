@@ -10,8 +10,9 @@
 #include "JsonUtilities.h"
 
 // Forward Declared Functions
-TSharedPtr<FJsonObject> ThrowRSSInitROOT_RWUtil(FString JSONPath, int32 ReadWrite);
+TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWrite);
 
+// The function throws material instance dynamic - hard-coded to work M_SyncNotify so far;
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
 {
     static FSoftObjectPath MatPath(TEXT("/Game/Mats/UMG/M_SyncNotify.M_SyncNotify"));
@@ -28,39 +29,28 @@ UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
     return DynMat;
 }
 
+// The function throws popups of different types - investigate how to bind actions depending on user's interaction;
 void ThrowDialogMessage(FString Message)
 {
     FText MsgTitle = FText::FromString(TEXT("Warning!"));
     FMessageDialog::Open(EAppMsgType::Ok, FText::FromString((TEXT("%s"), *Message)), &MsgTitle);
 }
 
-TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject)
+// The function takes 2 arguments - module and desired object, returning the last one;
+// Hard-coded to search in the RSSInit.json 
+TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString RSSInitObject)
 {
+    FString RSSInitSubPath = TEXT("\\RSS\\RSSInit.json");
+    TSharedPtr<FJsonObject> JSONObject;
 
-    // FString JsonString;
+    TSharedPtr<FJsonObject> ModuleAsObject = ThrowRSSInitModule_RWUtil(RSSInitSubPath, 0);
 
-    // if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
-    // {
-    //     UE_LOG(LogTemp, Error, TEXT("Failed to load file."));
-    //     TSharedPtr<FJsonObject> MacrosManager = nullptr;
-    //     return MacrosManager;
-    // }
-
-    
-    // TArray<TSharedPtr<FJsonValue>> JsonArray;
-    // TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-
-    FString RSSInitPath = TEXT("\\RSS\\RSSInit.json");
-    TSharedPtr<FJsonObject> MacrosManager;
-
-    TSharedPtr<FJsonObject> RootObject = ThrowRSSInitROOT_RWUtil(RSSInitPath, 0);
-
-    if (RootObject->HasField(RSSInitModule))
+    if (ModuleAsObject->HasField(RSSInitModule))
     {
-        TSharedPtr<FJsonObject> LifecycleInit = RootObject->GetObjectField(RSSInitModule);
-        if (LifecycleInit->HasField(JSONObject))
+        TSharedPtr<FJsonObject> LifecycleInit = ModuleAsObject->GetObjectField(RSSInitModule);
+        if (LifecycleInit->HasField(RSSInitObject))
         {
-            MacrosManager = LifecycleInit->GetObjectField(JSONObject);
+            JSONObject = LifecycleInit->GetObjectField(RSSInitObject);
 
             // bool bIsInitialized = MacrosManager->GetBoolField(TEXT("bIsInitialized"));
             // MacrosManager_EXP->SetIsEnabled(bIsInitialized);
@@ -84,10 +74,10 @@ TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONOb
     // {
     //     for (const TSharedPtr<FJsonValue>& Item : JsonArray)
     //     {
-    //         TSharedPtr<FJsonObject> RootObject = Item->AsObject();
-    //         if (RootObject->HasField(TEXT("LifecycleInit")))
+    //         TSharedPtr<FJsonObject> ModuleAsObject = Item->AsObject();
+    //         if (ModuleAsObject->HasField(TEXT("LifecycleInit")))
     //         {
-    //             TSharedPtr<FJsonObject> LifecycleInit = RootObject->GetObjectField(TEXT("LifecycleInit"));
+    //             TSharedPtr<FJsonObject> LifecycleInit = ModuleAsObject->GetObjectField(TEXT("LifecycleInit"));
     //             if (LifecycleInit->HasField(TEXT("MacrosManager")))
     //             {
     //                 MacrosManager = LifecycleInit->GetObjectField(TEXT("MacrosManager"));
@@ -118,12 +108,15 @@ TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONOb
     //     MacrosManager = nullptr;
     // }
 
-    return MacrosManager;
+    return JSONObject;
 }
 
-TSharedPtr<FJsonObject> ThrowRSSInitROOT_RWUtil(FString JSONPath, int32 ReadWrite)
+// The function takes a relative path to JSON file and returns a module as an object - hard-coded to a LifecycleInit module;
+// --> Modules - top layers within the RSSInit.json array;
+// --> Relative Path - subdirectory within the root directory of project;
+TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWrite)
 {
-    FString RSSInitPath = FPaths::ProjectDir() + JSONPath;
+    FString RSSInitPath = FPaths::ProjectDir() + JSONSubPath;
     FString JsonString;
     
     if (!FFileHelper::LoadFileToString(JsonString, *RSSInitPath))
@@ -134,43 +127,25 @@ TSharedPtr<FJsonObject> ThrowRSSInitROOT_RWUtil(FString JSONPath, int32 ReadWrit
 
     TArray<TSharedPtr<FJsonValue>> JsonArray;
     JsonArray.Empty();
-    TSharedPtr<FJsonObject> RootObject = nullptr;
+    TSharedPtr<FJsonObject> ModuleAsObject = nullptr;
 
     if (ReadWrite == 0)
     {
         TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
         FJsonSerializer::Deserialize(Reader, JsonArray);
-        RootObject = JsonArray[1]->AsObject();
+        ModuleAsObject = JsonArray[1]->AsObject();
     }
     else if (ReadWrite == 1)
     { 
         TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
         FJsonSerializer::Serialize(JsonArray, Writer);
-        RootObject = JsonArray[1]->AsObject();
+        ModuleAsObject = JsonArray[1]->AsObject();
     }
 
-    return RootObject;
-
-    // switch (ReadWrite)
-    // {
-    // case 0:
-    //     TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-    //     FJsonSerializer::Deserialize(Reader, JsonArray);
-    //     RootObject = JsonArray[0]->AsObject();
-    //     break;
-    // case 1:
-    //     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
-    //     FJsonSerializer::Serialize(JsonArray, Writer);
-    //     RootObject = JsonArray[0]->AsObject();
-    //     break;
-    
-    // default:
-    //     RootObject = nullptr;
-    //     break;
-    // }
+    return ModuleAsObject;
 
     // for (const TSharedPtr<FJsonValue>& Item : JsonArray)
     // {
-    //     TSharedPtr<FJsonObject> RootObject = Item->AsObject();
+    //     TSharedPtr<FJsonObject> ModuleAsObject = Item->AsObject();
     // }
 }
