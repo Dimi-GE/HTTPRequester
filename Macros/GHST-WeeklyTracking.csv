@@ -174,13 +174,13 @@ Craft responses for Russian language reviews;
 
 05/05/25 - 09/05/25
 
-New: 41 + 10(Spam: 28 + 6, Relevant: 13 + 4); Closed: 10; Left: 7;
-BPR: 32; Relevant: ; Irrelevant: ; Closed: 0; Left: 320;
+New: 41 + 17(Spam: 28 + 13, Relevant: 13 + 4); Closed: 16; Left: 1;
+BPR: 32 + 18; Relevant: ; Irrelevant: ; Closed: 0; Left: 338;
 
-R: 0;
-I: 0;
+R: 5;
+I: 9;
 
-L: 320;
+L: 338;
 
 Prior:
 R: 0;
@@ -206,6 +206,10 @@ https://ghostery.zendesk.com/agent/tickets/85771
 Check reviews for positive feedback on the Ghostery UI - rework current ones to text;
 Search for testimonials from other browsers - Safari is left;
 
+and collect some while you look for the interface. they are rare but appear sometimes
+5:28
+maybe we write a content piece on how professionals use ghostery to inspire others
+
 Craft responses for Russian language reviews;
 
 Олег бражнов
@@ -227,3 +231,5 @@ Denis Mureskae
 Дмитро Кузніцов
 5 мая 2025 г.
 Лучше адблокера потому-что ютуб за него не банит. советую
+
+
