@@ -11,10 +11,12 @@
 // Externals
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
 extern void ThrowDialogMessage(FString Message);
-extern TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject, int32 ReadWriteBinary);
+// extern TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject, int32 ReadWriteBinary);
 
-extern TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile(FString JSONSubPath, int32 ReadWriteBinary);
+extern TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile_UTIL(FString JSONSubPath);
 extern TSharedPtr<FJsonObject> ThrowRSSInitModule_UTIL(TArray<TSharedPtr<FJsonValue>> JsonArray, FString RSSInitModule, FString RSSInitField);
+extern void SaveJsonArrayToFile_UTIL(const FString& JSONSubPath, const TArray<TSharedPtr<FJsonValue>>& JsonArray);
+
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -60,9 +62,8 @@ void UMacrosManager::RSSInit()
     FString RSSInitSubPath = TEXT("\\RSS\\RSSInit.json");
     FString RSSInitModule = TEXT("LifecycleInit");
     FString RSSInitField = TEXT("MacrosManager");
-    int32 ReadWriteBinary = 0;
 
-    TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile(RSSInitSubPath, ReadWriteBinary);
+    TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile_UTIL(RSSInitSubPath);
     if (JsonArray.IsEmpty())
     {
         UE_LOG(LogTemp, Error, TEXT("RSSInit::JsonArray is empty - returning."));
@@ -75,6 +76,10 @@ void UMacrosManager::RSSInit()
         UE_LOG(LogTemp, Error, TEXT("RSSInit::MacrosManager is nullptr - returning."));
         return;
     }
+
+    RSSMacrosManager->SetNumberField(TEXT("SyncState"), 1);
+
+    SaveJsonArrayToFile_UTIL(RSSInitSubPath, JsonArray);
 
     UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful - %f."), RSSMacrosManager->GetNumberField(TEXT("SyncState")));
 

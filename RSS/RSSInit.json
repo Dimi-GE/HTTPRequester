@@ -1,21 +1,20 @@
 [
-    {
-        "descriptor":
-        {
-            "RSS":"Reflectors Subsystem - Reflectors-related system, designed to leverage functionality, as storing flags, states, etc., externaly, in order to avoid conflicts within engine-related processes.",
-            "RSSInit":"RSSInit - is a Reflector Subsystem Initialization file, which responsible for maintaining reflector states externaly.",
-            "description":"RSS - Reflection Subsystem is designed to maintain communication between reflectors functionalities and external sources of communication. In the current state, RSS is responsible for handling launch/close notification messaging."
-        }
-    },
-    {
-        "LifecycleInit":
-        {
-            "MacrosManager":
-            {
-                "bIsInitialized": true,
-                "SyncState": 1
-            }  
-        }
- 
-    }
+	{
+		"descriptor":
+		{
+			"RSS": "Reflectors Subsystem - Reflectors-related system, designed to leverage functionality, as storing flags, states, etc., externaly, in order to avoid conflicts within engine-related processes.",
+			"RSSInit": "RSSInit - is a Reflector Subsystem Initialization file, which responsible for maintaining reflector states externaly.",
+			"description": "RSS - Reflection Subsystem is designed to maintain communication between reflectors functionalities and external sources of communication. In the current state, RSS is responsible for handling launch/close notification messaging."
+		}
+	},
+	{
+		"LifecycleInit":
+		{
+			"MacrosManager":
+			{
+				"bIsInitialized": true,
+				"SyncState": 2
+			}
+		}
+	}
 ]

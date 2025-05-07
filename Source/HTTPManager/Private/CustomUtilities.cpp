@@ -151,7 +151,7 @@ TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 Rea
     // }
 }
 
-TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile(FString JSONSubPath, int32 ReadWriteBinary)
+TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile_UTIL(FString JSONSubPath)
 {   
     FString RSSInitPath = FPaths::ProjectDir() + JSONSubPath;
     TArray<TSharedPtr<FJsonValue>> JsonArray;
@@ -164,18 +164,23 @@ TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile(FString JSONSubPath, int32
         return JsonArray;
     }
 
-    if (ReadWriteBinary == 0)
+    TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+    
+    if (!FJsonSerializer::Deserialize(Reader, JsonArray))
     {
-        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-        FJsonSerializer::Deserialize(Reader, JsonArray);
-    }
-    else if (ReadWriteBinary == 1)
-    { 
-        TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
-        FJsonSerializer::Serialize(JsonArray, Writer);
+        UE_LOG(LogTemp, Error, TEXT("Failed to deserialize JSON - returning."));
+        return JsonArray;
     }
 
     return JsonArray;
+
+    // else if (ReadWriteBinary == 1)
+    // { 
+    //     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+    //     FJsonSerializer::Serialize(JsonArray, Writer);
+    // }
+
+    
 }
 
 TSharedPtr<FJsonObject> ThrowRSSInitModule_UTIL(TArray<TSharedPtr<FJsonValue>> JsonArray, FString RSSInitModule, FString RSSInitField)
@@ -218,4 +223,25 @@ TSharedPtr<FJsonObject> ThrowRSSInitModule_UTIL(TArray<TSharedPtr<FJsonValue>> J
     }
 
     return RSSInitField_AsObject;
+}
+
+void SaveJsonArrayToFile_UTIL(const FString& JSONSubPath, const TArray<TSharedPtr<FJsonValue>>& JsonArray)
+{
+    FString OutputString;
+    FString FullPath = FPaths::ProjectDir() + JSONSubPath;
+
+    TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+    if (!FJsonSerializer::Serialize(JsonArray, Writer))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to serialize JSON - returning."));
+        return ;
+    }
+
+    if (!FFileHelper::SaveStringToFile(OutputString, *FullPath))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to write JSON to file - returning."));
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("Successfully saved JSON."));
 }
