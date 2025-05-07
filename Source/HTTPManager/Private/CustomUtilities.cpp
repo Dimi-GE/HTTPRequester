@@ -11,7 +11,7 @@
 
 // Forward Declared Functions
 TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWrite);
-TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile(FString JSONSubPath, int32 ReadWriteBinary);
+TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile_UTIL(FString JSONSubPath);
 
 // The function throws material instance dynamic - hard-coded to work M_SyncNotify so far;
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
@@ -24,7 +24,7 @@ UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
     UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(BaseMat, nullptr);
     if (DynMat)
     {
-        DynMat->SetScalarParameterValue(FName("SwitchParameter"), ScalarValue);
+        DynMat->SetScalarParameterValue(FName("SyncState"), ScalarValue);
     }
 
     return DynMat;

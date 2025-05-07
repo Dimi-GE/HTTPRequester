@@ -12,8 +12,12 @@
 		{
 			"MacrosManager":
 			{
-				"bIsInitialized": true,
-				"SyncState": 2
+				"Repository": "https://api.github.com/repos/Dimi-GE/HTTPRequester/commits?path=Macros&per_page=1",
+				"ResponseCode": 0,
+				"RateLimit": 60,
+				"RateLimitResetAt": 0,
+				"LastSync": 0,
+				"SyncState": 1
 			}
 		}
 	}
