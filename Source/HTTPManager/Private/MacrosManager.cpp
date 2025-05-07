@@ -31,6 +31,9 @@ void UMacrosManager::NativeConstruct()
 
     this->RSSInit();
     
+    // Buttons Dynamic Delegates
+    // RSSInit_B->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
+
     // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
     // ThrowDialogMessage("Remember to sync changes before continue any further.");
 }
@@ -62,9 +65,6 @@ void UMacrosManager::RSSInit()
     FString RSSInitModule = TEXT("LifecycleInit");
     FString RSSInitField = TEXT("MacrosManager");
 
-    // Buttons Dynamic Delegates
-    RSSInit_B->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
-
     TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile_UTIL(RSSInitSubPath);
     if (JsonArray.IsEmpty())
     {
@@ -83,7 +83,7 @@ void UMacrosManager::RSSInit()
 
     // SaveJsonArrayToFile_UTIL(RSSInitSubPath, JsonArray);
 
-    // UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful - %f."), RSSMacrosManager->GetNumberField(TEXT("SyncState")));
+    UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful - %f."), RSSMacrosManager->GetNumberField(TEXT("SyncState")));
 
     // TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(RSSInitModule, RSSInitObject, ReadWriteBinary);
 
