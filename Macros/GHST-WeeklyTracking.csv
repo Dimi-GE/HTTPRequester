@@ -172,21 +172,21 @@ Search for testimonials from other browsers - Safari is left;
 
 Craft responses for Russian language reviews;
 
-05/05/25 - 09/05/25
+05.05.25 - 09.05.25
 
-New: 41 + 17 + 18 + 11(Spam: 28 + 18 + 9, Relevant: 13 + 4+ 2); Closed: 19; Left: 0;
-BPR: 32 + 18 + 10; Relevant: 13; Irrelevant: 17; Closed: 30; Left: 304;
+New: 41 + 17 + 18 + 15(Spam: 28 + 18 + 9 + 14, Relevant: 13 + 4 + 2 + 1); Closed: 20; Left: 0;
+BPR: 32 + 18 + 10 + 21; Relevant: 16; Irrelevant: 22; Closed: 38; Left: 317;
 
 R: 0;
 I: 0;
 
-L: 304;
+L: 317;
 
-Prior BPR: 10; Relevant: 6; Irrelevant: 2; Closed: 8; Left: 2;
-R: 6;
-I: 2;
+Prior BPR: 16; Relevant: 9; Irrelevant: 7; Closed: 16; Left: 0;
+R: 0;
+I: 0;
 
-L: 2;
+L: 0;
 
 Issues.
 New:
