@@ -105,4 +105,5 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	FString ReflectFileToScreen_UTIL(int32 CurrentIndex);
 	void CustomLog_FText_UTIL(FString FunctionName, FString LogText);
+	void HandleThisLifycycle();
 };

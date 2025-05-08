@@ -29,10 +29,10 @@ void UMacrosManager::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    this->RSSInit();
-    
     // Buttons Dynamic Delegates
-    // RSSInit_B->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
+    RSSInit_B->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
+
+    this->HandleThisLifycycle();
 
     // SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(1));
     // ThrowDialogMessage("Remember to sync changes before continue any further.");
@@ -56,6 +56,35 @@ void UMacrosManager::RequestDestroyWindow()
     UE_LOG(LogTemp, Error, TEXT("Destruct fired"));
 }
 
+void UMacrosManager::HandleThisLifycycle()
+{
+    FString RSSInitSubPath = TEXT("\\RSS\\RSSInit.json");
+    FString RSSInitModule = TEXT("LifecycleInit");
+    FString RSSInitField = TEXT("MacrosManager");
+
+    TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile_UTIL(RSSInitSubPath);
+    if (JsonArray.IsEmpty())
+    {
+        UE_LOG(LogTemp, Error, TEXT("HandleThisLifycycle::JsonArray is empty - returning."));
+        return;
+    }
+    
+    TSharedPtr<FJsonObject> RSSMacrosManager = ThrowRSSInitModule_UTIL(JsonArray, RSSInitModule, RSSInitField);
+    if (RSSMacrosManager == nullptr)
+    {
+        UE_LOG(LogTemp, Error, TEXT("HandleThisLifycycle::MacrosManager is nullptr - returning."));
+        return;
+    }
+
+    if (RSSMacrosManager->GetBoolField(TEXT("bIsInitialized")))
+    {
+        SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(RSSMacrosManager->GetNumberField(TEXT("SyncState"))));
+        return;
+    }
+
+    MacrosManager_EXP->SetIsEnabled(false);
+    MacrosManager_EXP->SetIsExpanded(false);
+}
 
 // The function is designed to initialize the Macros Manager as an editor window; 
 // The main responsibility is tracking post-sync progress by making a timestamp - it should prevent loosing data after widgets recompilation; 
@@ -79,11 +108,18 @@ void UMacrosManager::RSSInit()
         return;
     }
 
+    if (RSSMacrosManager->GetBoolField(TEXT("bIsInitialized")))
+    {
+        return;
+    }
+
     SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(RSSMacrosManager->GetNumberField(TEXT("SyncState"))));
+    RSSMacrosManager->SetBoolField(TEXT("bIsInitialized"), true);
+    MacrosManager_EXP->SetIsEnabled(true);
 
-    // SaveJsonArrayToFile_UTIL(RSSInitSubPath, JsonArray);
+    SaveJsonArrayToFile_UTIL(RSSInitSubPath, JsonArray);
 
-    UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful - %f."), RSSMacrosManager->GetNumberField(TEXT("SyncState")));
+    // UE_LOG(LogTemp, Warning, TEXT("RSSInit::Initialization successful - %f."), RSSMacrosManager->GetNumberField(TEXT("SyncState")));
 
     // TSharedPtr<FJsonObject> MacrosManager = ThrowRSSInitObject(RSSInitModule, RSSInitObject, ReadWriteBinary);
 
@@ -481,6 +517,11 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString Lo
                         else
                         {
                             SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(0));
+
+                            // Re-wrap into another function in order to change a single specific parameter
+                            // Alternatively - set up RSSInit as completed only aftere sync
+                            // this->RSSInit();
+
                             FString logBuild = FString::Printf(TEXT("All changes are synchronized."));
                             CustomLog_TXT->SetText(FText::FromString(logBuild));
                             UE_LOG(LogTemp, Warning, TEXT("The sync is not needed."));
