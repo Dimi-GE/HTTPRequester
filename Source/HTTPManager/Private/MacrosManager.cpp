@@ -510,6 +510,31 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString Lo
                             CustomLog_TXT->SetText(FText::FromString(logBuild));
 
                             SyncImage->SetBrushFromMaterial(ThrowDynamicInstance(2));
+
+                            FString RSSInitSubPath = TEXT("\\RSS\\RSSInit.json");
+                            FString RSSInitModule = TEXT("LifecycleInit");
+                            FString RSSInitField = TEXT("MacrosManager");
+
+                            TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile_UTIL(RSSInitSubPath);
+                            if (JsonArray.IsEmpty())
+                            {
+                                UE_LOG(LogTemp, Error, TEXT("RSSInit::JsonArray is empty - returning."));
+                                return;
+                            }
+                            
+                            TSharedPtr<FJsonObject> RSSMacrosManager = ThrowRSSInitModule_UTIL(JsonArray, RSSInitModule, RSSInitField);
+                            if (RSSMacrosManager == nullptr)
+                            {
+                                UE_LOG(LogTemp, Error, TEXT("RSSInit::MacrosManager is nullptr - returning."));
+                                return;
+                            }
+
+                            RSSMacrosManager->SetNumberField(TEXT("SyncState"), 2);
+                            RSSMacrosManager->SetStringField(TEXT("RateLimit"), *RateLimit);
+                            RSSMacrosManager->SetStringField(TEXT("RateLimitResetAt"), *RateReset);
+                            RSSMacrosManager->SetNumberField(TEXT("ResponseCode"), 200);
+
+                            SaveJsonArrayToFile_UTIL(RSSInitSubPath, JsonArray);
                             
                             UE_LOG(LogTemp, Warning, TEXT("Last Local Changes: %s"), *LocalTimeStamp.ToString());
                             UE_LOG(LogTemp, Warning, TEXT("Last GitHub Commit: %s"), *GitHubTimeStamp.ToString());
@@ -521,6 +546,31 @@ void UMacrosManager::GetLastModifiedFromGitHub(FString RepositoryURL, FString Lo
                             // Re-wrap into another function in order to change a single specific parameter
                             // Alternatively - set up RSSInit as completed only aftere sync
                             // this->RSSInit();
+
+                            FString RSSInitSubPath = TEXT("\\RSS\\RSSInit.json");
+                            FString RSSInitModule = TEXT("LifecycleInit");
+                            FString RSSInitField = TEXT("MacrosManager");
+
+                            TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile_UTIL(RSSInitSubPath);
+                            if (JsonArray.IsEmpty())
+                            {
+                                UE_LOG(LogTemp, Error, TEXT("RSSInit::JsonArray is empty - returning."));
+                                return;
+                            }
+                            
+                            TSharedPtr<FJsonObject> RSSMacrosManager = ThrowRSSInitModule_UTIL(JsonArray, RSSInitModule, RSSInitField);
+                            if (RSSMacrosManager == nullptr)
+                            {
+                                UE_LOG(LogTemp, Error, TEXT("RSSInit::MacrosManager is nullptr - returning."));
+                                return;
+                            }
+
+                            RSSMacrosManager->SetNumberField(TEXT("SyncState"), 0);
+                            RSSMacrosManager->SetStringField(TEXT("RateLimit"), *RateLimit);
+                            RSSMacrosManager->SetStringField(TEXT("RateLimitResetAt"), *RateReset);
+                            RSSMacrosManager->SetNumberField(TEXT("ResponseCode"), 200);
+
+                            SaveJsonArrayToFile_UTIL(RSSInitSubPath, JsonArray);
 
                             FString logBuild = FString::Printf(TEXT("All changes are synchronized."));
                             CustomLog_TXT->SetText(FText::FromString(logBuild));

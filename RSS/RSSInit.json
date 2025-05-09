@@ -14,11 +14,11 @@
 			{
 				"bIsInitialized": true,
 				"SyncDateTime": 0,
-				"SyncState": 1,
+				"SyncState": 0,
 				"Repository": "https://api.github.com/repos/Dimi-GE/HTTPRequester/commits?path=Macros&per_page=1",
-				"ResponseCode": 0,
-				"RateLimit": 60,
-				"RateLimitResetAt": 0
+				"ResponseCode": 200,
+				"RateLimit": "59",
+				"RateLimitResetAt": "1746773638"
 			}
 		}
 	}
