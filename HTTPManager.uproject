@@ -20,6 +20,10 @@
 			"TargetAllowList": [
 				"Editor"
 			]
+		},
+		{
+			"Name": "UTC_LiquidShader",
+			"Enabled": true
 		}
 	]
 }

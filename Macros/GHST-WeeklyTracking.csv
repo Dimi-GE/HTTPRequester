@@ -174,7 +174,7 @@ Craft responses for Russian language reviews;
 
 05.05.25 - 09.05.25
 
-New: 41 + 17 + 18 + 15 + 16(Spam: 28 + 18 + 9 + 14 + 13, Relevant: 13 + 4 + 2 + 1 + 3); Closed: 23; Left: 0;
+New: 41 + 17 + 18 + 15 + 19(Spam: 28 + 18 + 9 + 14 + 14, Relevant: 13 + 4 + 2 + 1 + 5); Closed: 23; Left: 3;
 BPR: 32 + 18 + 10 + 21 + 4; Relevant: 16; Irrelevant: 22; Closed: 38; Left: 321;
 
 R: 0;
@@ -199,9 +199,16 @@ Prior BPR:
 
 Feature requests:
 
-request form apple app store: “The best ad blocker for Safari overall—it doesn’t slow down browsing, works even on YouTube, and hides cookie banners. If possible, I’d add the option to enable Picture-in-Picture on all sites and block ‘smart app banners,’ which are the only things missing compared to other extensions I’ve used in the past.”
 
 Notes:
+
+try element picker;
+https://github.com/ghostery/ghostery-extension/pull/2391
+test Safari for Keeping Up Promises project;
+
+register Amazon Prime and test;
+
+Use spotify on a regular basis;
 
 keep tracking Hulu;
 
@@ -218,6 +225,6 @@ and collect some while you look for the interface. they are rare but appear some
 5:28
 maybe we write a content piece on how professionals use ghostery to inspire others
 
+Apple: For most part it works good, but for every YouTube window I open regardless of my previous setting, it resets ambient mode to on. Turning off Ghostery allows YouTube to remember this setting
+
 Craft responses for Russian language reviews:
-
-
