@@ -1,190 +1,15 @@
-24.03.25 - 29.03.25
-New: 60 + 16 + 16 + 36(Spam: 40 + 15 + 7 + 26, Relevant: 20 + 1 + 9 + 9); Closed: 18 + 11 + 8 + 2; Left: 2;
-BPR: 143 + 10 + 11 + 21; Relevant: 30 + 8; Irrelevant: 23 + 18; Closed: 79; Left: 106;
-
-Issues.
-New:
-Twitch:
-Connect to USA;
-Clean up data of the browser;
-Sign in to the account;
-Don't confirm an email;
-
-BPG:
-Twitch;
-Spotify;
-YouTube;
-
-Firefox:
-1*
-It doesn't work. It says:
-YouTube blocking you from watching ad-free videos?
-We know you rely on Ghostery for a smooth YouTube experience. Until a more refined solution emerges, here’s a temporary fix.
-1. Allow Ghostery in private windows
-
-If I watch in a Private window, it doesn't block any ads. So what's the sense of even having this extension?
-
-
-Manage to ask JP to test Hulu;
-https://ghostery.slack.com/archives/C049193BHA4/p1738853083389799
-
-
-31.03.25 - 04.04.25
-New: 45 + 25 + 20 + 22 + 17(Spam: 33 + 18 + 13 + 15 + 13, Relevant: 14 + 7 + 7 + 7 + 4); Closed: 32; Left: 7;
-BPR: 147 + 19 + 23 + 28 + 7; Relevant: 17; Irrelevant: 29; Closed: 17; Left: 205;
-
-Issues.
-New:
-
-BPG:
-YouTube;
-
-Feature requests:
-I would like to be able to enable all ads and trackers by default but then have the option to block specific ones like Facebook or TikTok analitics.
-
-
-Notes:
- - discuss feature requests on all hands meetings;
- 
- - take a look on systems to bring the important domains at the first place in Zendesk.
- - ghostery accounts will be removed;
- 
-Minimum OS required for Ghostery:
-macOS 13;
-iOS 18;
-
-Keep in mind the contribution subscription information in Paddle.
-
-07.04.25 - 11.04.25
-New: 67 + 30 + 25 + 23 + 32(Spam: 50 + 25 + 18 + 19 + 32, Relevant: 17 + 5 + 7 + 5); Closed: 34; Left: 0;
-BPR: 8 + 15 + 14 + 11 + 25; Relevant: 42; Irrelevant: 43; Closed: 85; Left: 188;
-
-
-Issues.
-New:
-
-BPG:
-civit.ai is constantly flashing - the extensin tries to remove some elements, which seem to refresh dynamically;
-booking flight tickets;
-shopping payments;
-
-Notes:
-
-The ultimate goal of using statistics is figuring out important domains on flight;
-
-create and describe the feature request in a way I understand how should it work - adding tags to important domains; (keeping in mind there are 10,000 of those)
-
-14.04.25 - 18.04.25
-
-New: 50 + 19 + 25 + 21(Spam: 36 + 18 + 20 + 19, Relevant: 14 + 1 + 3 + 4); Closed: 21; Left: 1;
-BPR: 44 + 11 + 7; Relevant: 18; Irrelevant: 31; Closed: 59; Left: 201;
-
-R: 0;
-I: 0;
-
-L: 201;
-
-Issues.
-New:
-
-BPG:
-n-tv.de - cookie popup, ads; Around 10 reports during a period; (6)
-Browsers: Firefox - 6; Chrome - 1;
-Version: 10.4.28(5); 10.4.29(1);
-
-civitai.com (5)
-
-Notes:
-check the slack-related functionality in Zendesk:
-https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
-inform users about us taking actions on the issue with Edge;
-
-21.04.25 - 25.04.25
-
-New: 84 + 27 + 26 + 17 + 20(Spam: 69 + 20 + 22 + 14 + 16, Relevant: 15 + 7 + 4 + 3 + 4); Closed: 29; Left: 1;
-BPR: 52 + 19 + 4 + 13 + 15; Relevant: 37; Irrelevant: 49; Closed: 86; Left: 219;
-
-R: 0;
-I: 0;
-
-L: 219;
-
-Prior:
-R: 0;
-I: 0;
-
-L:0;
-
-
-Issues.
-New:
-
-BPG:
-
-Notes:
-check the slack-related functionality in Zendesk:
-https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
-
-check the issue with yandex email:
-https://ghostery.zendesk.com/agent/tickets/85771
-
-Check reviews for positive feedback on the Ghostery UI.
-
-Craft responses for Russian language reviews;
-
-28/04/25 - 02/05/25
-
-New: 45 + 14 + 21 + 16 + 20(Spam: 36 + 11 + 16 + 7 + 16, Relevant: 9 + 3 + 5 + 9 + 4); Closed: 30; Left: 0;
-BPR: 63 + 11 + 15 + 13 + 11; Relevant: ; Irrelevant: ; Closed: 18; Left: 288;
-
-R: 0;
-I: 0;
-
-L: 288;
-
-Prior:
-R: 0; (35 + 124 YT-related)
-I: 0;
-
-L: 9 + 159;
-Total: 14 + 159;
-
-Closed: 33 with a recent YT breakage;
-
-Issues.
-New:
-
-BPG:
-
-Notes:
-
-Craft a message for YouTube;
-Craft mesasge for a company user;
-
-check the slack-related functionality in Zendesk:
-https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
-
-check the issue with yandex email:
-https://ghostery.zendesk.com/agent/tickets/85771
-
-Check reviews for positive feedback on the Ghostery UI - rework current ones to text;
-Search for testimonials from other browsers - Safari is left;
-
-Craft responses for Russian language reviews;
-
 05.05.25 - 09.05.25
-
-New: 41 + 17 + 18 + 15 + 19(Spam: 28 + 18 + 9 + 14 + 14, Relevant: 13 + 4 + 2 + 1 + 5); Closed: 23; Left: 3;
-BPR: 32 + 18 + 10 + 21 + 4; Relevant: 16; Irrelevant: 22; Closed: 38; Left: 321;
+New: 28(Spam: 27, Relevant: 1); Closed: 1; Left: 0;
+BPR: 9; Relevant: ; Irrelevant: ; Closed: 0; Left: 330;
 
 R: 0;
 I: 0;
 
 L: 321;
 
-Prior BPR: 16; Relevant: 9; Irrelevant: 7; Closed: 16; Left: 0;
-R: 0;
-I: 0;
+Prior BPR: 37; Relevant: ; Irrelevant: ; Closed: 0; Left: 37;
+R: 9;
+I: 6;
 
 L: 0;
 
@@ -193,9 +18,9 @@ New:
 
 BPR:
 
-wiadomosci.wp.pl - blank pages, ads leftovers;
-
 Prior BPR:
+
+nu.nl - consent pop-up is visible, constantly refreshing for some browsers;
 
 Feature requests:
 
@@ -214,9 +39,6 @@ keep tracking Hulu;
 
 check the slack-related functionality in Zendesk:
 https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
-
-check the issue with yandex email:
-https://ghostery.zendesk.com/agent/tickets/85771
 
 Check reviews for positive feedback on the Ghostery UI - rework current ones to text;
 Search for testimonials from other browsers - Safari is left;
