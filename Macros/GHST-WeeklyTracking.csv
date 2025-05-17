@@ -1,15 +1,15 @@
 05.05.25 - 09.05.25
-New: 28(Spam: 27, Relevant: 1); Closed: 1; Left: 0;
-BPR: 9; Relevant: ; Irrelevant: ; Closed: 0; Left: 330;
+New: 88(Spam: 78, Relevant: 1 + 9); Closed: 8; Left: 2;
+BPR: 26; Relevant: ; Irrelevant: ; Closed: 0; Left: 347;
 
 R: 0;
 I: 0;
 
-L: 321;
+L: 347;
 
-Prior BPR: 37; Relevant: ; Irrelevant: ; Closed: 0; Left: 37;
-R: 9;
-I: 6;
+Prior BPR: 124; Relevant: ; Irrelevant: ; Closed: 45; Left: 79;
+R: 0;
+I: 0;
 
 L: 0;
 
@@ -50,3 +50,10 @@ maybe we write a content piece on how professionals use ghostery to inspire othe
 Apple: For most part it works good, but for every YouTube window I open regardless of my previous setting, it resets ambient mode to on. Turning off Ghostery allows YouTube to remember this setting
 
 Craft responses for Russian language reviews:
+
+uBlock(AdGuard) Origin and Ghostery - for Hulu;
+Chrome(Firefox) browser for testing;
+
+1. First step - find people;
+2. Ask for Chrome - AdGurad & uBlock Lite;
+3. Ask for Firefox - uBlock Origin;
