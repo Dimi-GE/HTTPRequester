@@ -2,11 +2,17 @@
 
 
 #include "MacrosManager.h"
-
+// Components
 #include "Components/Image.h"
 #include "Components/Button.h"
 #include "Components/ExpandableArea.h" 
+#include "Components/ComboBoxString.h"
+#include "Components/VerticalBox.h"
+#include "Components/HorizontalBox.h"
+#include "Components/SizeBox.h"
+#include "Components/MultiLineEditableTextBox.h"
 
+// Utilities
 #include "HAL/PlatformFilemanager.h"
 // Externals
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
@@ -30,7 +36,7 @@ void UMacrosManager::NativeConstruct()
     Super::NativeConstruct();
 
     // Buttons Dynamic Delegates
-    RSSInit_B->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
+    RSSInit_BTN->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
 
     this->HandleThisLifycycle();
 

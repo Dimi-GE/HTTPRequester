@@ -36,24 +36,72 @@ class UMacrosManager : public UEditorUtilityWidget
 	void RequestDestroyWindow();
 	void Destruct();
 
-
-
 	public:
+	
+	// Expandable Area
+	UPROPERTY(meta = (BindWidget))
+	class UExpandableArea* MacrosManager_EXP;
 
+	// Text Blocks
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SelectedFileName_TXT;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* LOADALL_TXT;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* SelectCategory_TXT;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* HeaderText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ScrollBack_TXT;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ScrollForward_TXT;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* CustomLog_TXT;
 
+	// Imagess
     UPROPERTY(meta = (BindWidget))
     class UImage* SyncImage;
 
+	// Buttons
 	UPROPERTY(meta = (BindWidget))
-	class UButton* RSSInit_B;
+	class UButton* RSSInit_BTN;
 
 	UPROPERTY(meta = (BindWidget))
-	class UExpandableArea* MacrosManager_EXP;
+	class UButton* LOADALL_BTN;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* SYNC_BTN;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* ScrollBack_BTN;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* ScrollForward_BTN;
+
+	// Boxes
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UMultiLineEditableTextBox* CodeReflectionField_MLTXTB;
+
+	UPROPERTY(meta = (BindWidget))
+	class UComboBoxString* FileExtension_CBS;
+
+    UPROPERTY(meta = (BindWidget))
+    class UVerticalBox* Main_VB;
+
+    UPROPERTY(meta = (BindWidget))
+    class UHorizontalBox* Category_HB;
+
+    UPROPERTY(meta = (BindWidget))
+    class UHorizontalBox* SyncMacros_HB;
+
+    UPROPERTY(meta = (BindWidget))
+    class USizeBox* SyncState_SB;
 
 	// UPROPERTY(BlueprintReadOnly)
 	// EMacroCategory MacroCategoryEnum;
