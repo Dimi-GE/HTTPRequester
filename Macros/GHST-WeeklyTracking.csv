@@ -1,5 +1,5 @@
 19.05.25 - 23.05.25
-New: 42(Spam: 29, Relevant: 13); Closed: 8; Left: 5;
+New: 44(Spam: 30, Relevant: 14); Closed: 9; Left: 5;
 BPR: 6; Relevant: ; Irrelevant: ; Closed: 0; Left: 353;
 
 R: 0;
@@ -8,8 +8,8 @@ I: 0;
 L: 353;
 
 Prior BPR: 41; Relevant: ; Irrelevant: ; Closed: 0; Left: 73;
-R: 0;
-I: 0;
+R: 1;
+I: 1;
 
 L: 0;
 
