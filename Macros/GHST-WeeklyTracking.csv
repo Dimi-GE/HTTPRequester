@@ -1,5 +1,5 @@
 19.05.25 - 23.05.25
-New: 44 + 18(Spam: 30 + 11, Relevant: 14 + 7); Closed: 17; Left: 4;
+New: 44 + 18 + 15(Spam: 30 + 11 + 9, Relevant: 14 + 7 + 6); Closed: 17; Left: 10;
 BPR: 6; Relevant: ; Irrelevant: ; Closed: 0; Left: 353;
 
 R: 0;
@@ -26,6 +26,8 @@ Feature requests:
 
 
 Notes:
+
+psl keep in mind that once we remove the contribution banner- we need to update the links to one time donation in support emails and Privacy digest CTA
 
 try element picker;
 https://github.com/ghostery/ghostery-extension/pull/2391
