@@ -1,5 +1,5 @@
 19.05.25 - 23.05.25
-New: 44 + 18 + 15(Spam: 30 + 11 + 9, Relevant: 14 + 7 + 6); Closed: 17; Left: 10;
+New: 44 + 18 + 19 + 16 + 14(Spam: 30 + 11 + 11 + 11 + 8, Relevant: 14 + 7 + 8 + 5 + 6); Closed: 37; Left: 4;
 BPR: 6; Relevant: ; Irrelevant: ; Closed: 0; Left: 353;
 
 R: 0;
@@ -7,9 +7,9 @@ I: 0;
 
 L: 353;
 
-Prior BPR: 41 + 16; Relevant: ; Irrelevant: ; Closed: 0; Left: 89;
-R: 1;
-I: 1;
+Prior BPR: 89; Relevant: ; Irrelevant: ; Closed: 0; Left: 121;
+R: 15;
+I: 8;
 
 L: 0;
 
@@ -20,7 +20,6 @@ BPR:
 
 Prior BPR:
 
-nu.nl - consent pop-up is visible, constantly refreshing for some browsers;
 
 Feature requests:
 
