@@ -23,6 +23,8 @@ extern TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile_UTIL(FString JSONSu
 extern TSharedPtr<FJsonObject> ThrowRSSInitModule_UTIL(TArray<TSharedPtr<FJsonValue>> JsonArray, FString RSSInitModule, FString RSSInitField);
 extern void SaveJsonArrayToFile_UTIL(const FString& JSONSubPath, const TArray<TSharedPtr<FJsonValue>>& JsonArray);
 
+extern void RSSManifestInit_UTIL();
+
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -37,6 +39,7 @@ void UMacrosManager::NativeConstruct()
 
     // Buttons Dynamic Delegates
     RSSInit_BTN->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
+    RSSManifestInit_BTN->OnClicked.AddDynamic(this, &UMacrosManager::RSSManifestInit);
 
     this->HandleThisLifycycle();
 
@@ -90,6 +93,11 @@ void UMacrosManager::HandleThisLifycycle()
 
     MacrosManager_EXP->SetIsEnabled(false);
     MacrosManager_EXP->SetIsExpanded(false);
+}
+
+void UMacrosManager::RSSManifestInit()
+{
+    RSSManifestInit_UTIL();
 }
 
 // The function is designed to initialize the Macros Manager as an editor window; 

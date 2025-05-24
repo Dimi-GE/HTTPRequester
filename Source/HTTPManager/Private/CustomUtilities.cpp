@@ -3,6 +3,10 @@
 // Engine
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
+// File management
+#include "HAL/FileManager.h"
+#include "IDesktopPlatform.h"
+#include "DesktopPlatformModule.h"
 // Messaging
 #include "Misc/MessageDialog.h"
 // JSON
@@ -244,4 +248,101 @@ void SaveJsonArrayToFile_UTIL(const FString& JSONSubPath, const TArray<TSharedPt
     }
 
     UE_LOG(LogTemp, Warning, TEXT("Successfully saved JSON."));
+}
+
+TSharedPtr<FJsonObject> ThrowJsonObjectFromFile_UTIL(FString FilePath)
+{
+    // File manager initialization
+    IFileManager& FileManager = IFileManager::Get();
+
+    // Manifest placeholder
+    TSharedPtr<FJsonObject> RSSManifestJSON = nullptr;
+    
+    // Path construction
+    FString FullPath = FPaths::ProjectDir() + FilePath;
+    
+    // Array to hold the names of found files
+    TArray<FString> FoundFiles;
+
+    // Search for any files in the SaveGames directory, excluding directories
+    FileManager.FindFiles(FoundFiles, *FullPath, *FString("*.json*"));
+
+    for(const FString& File : FoundFiles)
+    {
+        if (File.Equals(TEXT("RSSManifest.json"), ESearchCase::IgnoreCase))
+        {
+            FString FullFilePath = FullPath / File;
+            FString FileContent;
+
+            if (FFileHelper::LoadFileToString(FileContent, *FullFilePath))
+            {
+                TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(FileContent);
+                FJsonSerializer::Deserialize(Reader, RSSManifestJSON);
+            }
+        }
+    }
+
+    return RSSManifestJSON;
+}
+
+FString OpenFolderDialog_UTIL()
+{
+    FString SelectedFolder;
+
+    IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+    if (DesktopPlatform)
+    {
+        void* ParentWindowHandle = FSlateApplication::Get().GetActiveTopLevelWindow()->GetNativeWindow()->GetOSWindowHandle();
+        
+        // Set the default path if needed
+        FString DefaultPath = FPaths::ProjectDir();
+        
+        // Open the folder dialog
+        bool bFolderSelected = DesktopPlatform->OpenDirectoryDialog(
+            ParentWindowHandle,
+            TEXT("Select a folder"),
+            DefaultPath,
+            SelectedFolder
+        );
+    }
+
+    return SelectedFolder;
+}
+
+void RSSManifestInit_UTIL()
+{
+    FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
+    FString ManifestPath = RSSPath / TEXT("RSSManifest.json");
+ 
+    // Check if file already exists
+    if (!FPaths::FileExists(ManifestPath))
+    {
+        // Create base JSON object
+        TSharedPtr<FJsonObject> RootObject = MakeShareable(new FJsonObject());
+        TSharedPtr<FJsonObject> DescriptorObject = MakeShareable(new FJsonObject());
+        TSharedPtr<FJsonObject> StructureRoot = MakeShareable(new  FJsonObject());
+        // TSharedPtr<FJsonObject> JSONObject = MakeShareable(new  FJsonObject());
+
+        FString StructureRootName = FPaths::GetCleanFilename(OpenFolderDialog_UTIL());
+
+        DescriptorObject->SetStringField(TEXT("RSSManifest"), TEXT("description"));
+        StructureRoot->SetStringField(TEXT("LastLocalCommit"), TEXT("timestamp"));
+        StructureRoot->SetStringField(TEXT("LastGitHubCommit"), TEXT("timestamp"));
+
+        RootObject->SetObjectField(TEXT("descriptor"), DescriptorObject);
+        RootObject->SetObjectField(StructureRootName, StructureRoot);
+
+        // Serialize to string
+        FString OutputString;
+        TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+        FJsonSerializer::Serialize(RootObject.ToSharedRef(), Writer);
+
+        // Ensure directory exists
+        IFileManager::Get().MakeDirectory(*RSSPath, true);
+
+        // Save to file
+        FFileHelper::SaveStringToFile(OutputString, *ManifestPath);
+    }
+
+
 }

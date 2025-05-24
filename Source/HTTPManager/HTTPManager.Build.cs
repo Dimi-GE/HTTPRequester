@@ -8,7 +8,21 @@ public class HTTPManager : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Blutility", "UMG", "HTTP", "Json", "JsonUtilities" });
+		PublicDependencyModuleNames.AddRange(new string[] {
+		"Core",
+		"CoreUObject",
+		"Engine",
+		"InputCore",
+		"Blutility",
+		"UMG",
+		"HTTP",
+		"Json",
+		"JsonUtilities",
+		"Slate",
+		"SlateCore",
+		"DesktopPlatform"
+
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

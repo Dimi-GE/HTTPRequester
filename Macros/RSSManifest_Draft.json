@@ -1,79 +1,84 @@
 {
-    "Macros":{
-        "LastLocalCommit": "timestamp",
-        "LastGitHubCommit": "timestamp",
-        "Categories":{
-          "Communicative":
-          { 
-            "hash": "hash",
-            "Files":
-            {
-              "file1": "hash",
-              "file2": "hash",
-              "file3": "hash"
-            }
-          },
-          "Explanatory":
-          { 
-            "hash": "hash",
-            "Files":
-            {
-              "file1": "hash",
-              "file2": "hash",
-              "file3": "hash"
-            }
-          },
-          "FeaturesExplained":
-          { 
-            "hash": "hash",
-            "Files":
-            {
-              "file1": "hash",
-              "file2": "hash",
-              "file3": "hash"
-            }
-          },
-          "HowTo's":
-          { 
-            "hash": "hash",
-            "Files":
-            {
-              "file1": "hash",
-              "file2": "hash",
-              "file3": "hash"
-            }
-          },
-          "Misc":
-          { 
-            "hash": "hash",
-            "Files":
-            {
-              "file1": "hash",
-              "file2": "hash",
-              "file3": "hash"
-            }
-          },
-          "Reviews":
-          { 
-            "hash": "hash",
-            "Files":
-            {
-              "file1": "hash",
-              "file2": "hash",
-              "file3": "hash"
-            }
-          },
-          "YouTube":
-          { 
-            "hash": "hash",
-            "Files":
-            {
-              "file1": "hash",
-              "file2": "hash",
-              "file3": "hash"
-            }
-          },
-          "GHST-WeeklyTracking.csv": "hash"
-        }
+    "descriptor":
+    {
+      "RSSManifest:": "descritpion"
+    },
+    "Macros":
+    {
+      "LastLocalCommit": "timestamp",
+      "LastGitHubCommit": "timestamp",
+      "Categories":{
+        "Communicative":
+        { 
+          "hash": "hash",
+          "Files":
+          {
+            "file1": "hash",
+            "file2": "hash",
+            "file3": "hash"
+          }
+        },
+        "Explanatory":
+        { 
+          "hash": "hash",
+          "Files":
+          {
+            "file1": "hash",
+            "file2": "hash",
+            "file3": "hash"
+          }
+        },
+        "FeaturesExplained":
+        { 
+          "hash": "hash",
+          "Files":
+          {
+            "file1": "hash",
+            "file2": "hash",
+            "file3": "hash"
+          }
+        },
+        "HowTo's":
+        { 
+          "hash": "hash",
+          "Files":
+          {
+            "file1": "hash",
+            "file2": "hash",
+            "file3": "hash"
+          }
+        },
+        "Misc":
+        { 
+          "hash": "hash",
+          "Files":
+          {
+            "file1": "hash",
+            "file2": "hash",
+            "file3": "hash"
+          }
+        },
+        "Reviews":
+        { 
+          "hash": "hash",
+          "Files":
+          {
+            "file1": "hash",
+            "file2": "hash",
+            "file3": "hash"
+          }
+        },
+        "YouTube":
+        { 
+          "hash": "hash",
+          "Files":
+          {
+            "file1": "hash",
+            "file2": "hash",
+            "file3": "hash"
+          }
+        },
+        "GHST-WeeklyTracking.csv": "hash"
       }
+    }
 }
