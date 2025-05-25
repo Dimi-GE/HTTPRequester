@@ -264,7 +264,7 @@ TSharedPtr<FJsonObject> ThrowJsonObjectFromFile_UTIL(FString FilePath)
     // Array to hold the names of found files
     TArray<FString> FoundFiles;
 
-    // Search for any files in the SaveGames directory, excluding directories
+    // Search for any files in the directory, excluding directories
     FileManager.FindFiles(FoundFiles, *FullPath, *FString("*.json*"));
 
     for(const FString& File : FoundFiles)
@@ -309,40 +309,125 @@ FString OpenFolderDialog_UTIL()
     return SelectedFolder;
 }
 
-void RSSManifestInit_UTIL()
+TSharedPtr<FJsonObject> ThrowNewJSONObject_UTIL( /* Root directory of the structure (Macros) */)
 {
-    FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
-    FString ManifestPath = RSSPath / TEXT("RSSManifest.json");
- 
-    // Check if file already exists
-    if (!FPaths::FileExists(ManifestPath))
-    {
-        // Create base JSON object
+    /* TODO:
+    1. Create base JSON object:
         TSharedPtr<FJsonObject> RootObject = MakeShareable(new FJsonObject());
         TSharedPtr<FJsonObject> DescriptorObject = MakeShareable(new FJsonObject());
-        TSharedPtr<FJsonObject> StructureRoot = MakeShareable(new  FJsonObject());
-        // TSharedPtr<FJsonObject> JSONObject = MakeShareable(new  FJsonObject());
-
-        FString StructureRootName = FPaths::GetCleanFilename(OpenFolderDialog_UTIL());
-
-        DescriptorObject->SetStringField(TEXT("RSSManifest"), TEXT("description"));
-        StructureRoot->SetStringField(TEXT("LastLocalCommit"), TEXT("timestamp"));
-        StructureRoot->SetStringField(TEXT("LastGitHubCommit"), TEXT("timestamp"));
-
         RootObject->SetObjectField(TEXT("descriptor"), DescriptorObject);
-        RootObject->SetObjectField(StructureRootName, StructureRoot);
 
-        // Serialize to string
-        FString OutputString;
-        TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
-        FJsonSerializer::Serialize(RootObject.ToSharedRef(), Writer);
+    2. Open target directory with name and set as root (currently Macros):
+        TSharedPtr<FJsonObject> Macros = MakeShareable(new  FJsonObject());
+        FString MacrosName = FPaths::GetCleanFilename(OpenFolderDialog_UTIL());
+        RootObject->SetObjectField(MacrosName, Macros);
 
-        // Ensure directory exists
-        IFileManager::Get().MakeDirectory(*RSSPath, true);
+    3. Set last local commit timestamp:
+        Macros->SetStringField(TEXT("LastLocalCommit"), TEXT("timestamp"));
 
-        // Save to file
-        FFileHelper::SaveStringToFile(OutputString, *ManifestPath);
+    4. Set the last GitHub commit timestamp:`
+        Macros->SetStringField(TEXT("LastGitHubCommit"), TEXT("timestamp"));
+
+    5. Create Categories (or custom name) JSON object:
+        TSharedPtr<FJsonObject> Categories = MakeShareable(new FJsonObject());
+        FString CategoriesName = FPaths::GetCleanFilename(Get clean folder name);
+        Macros->SetObjectField(CategoriesName, Categories);
+    
+    6. Find first internal directory:
+        6.a Create new JSON object for the directory with name:
+                TSharedPtr<FJsonObject> 1stDir = MakeShareable(new FJsonObject());
+                FString 1stDirName = FPaths::GetCleanFilename(Get clean folder name);
+                Categories->SetObjectField(1stDirName, 1stDir);
+        6.b Calculate and set the Hash string field:
+                hash = hash calculations;
+                1stDir->SetStringField(TEXT("hash"), *hash.ToString());
+        6.c Create Files(Content?..) JSON object:
+                TSharedPtr<FJsonObject> Files = MakeShareable(new FJsonObject());
+                1stDir->SetObjectField(TEXT("Files"), Files);
+
+
+    7. Iterate through files within the folder, filling the structure:
+        FString FileName = FPaths::GetCleanFilename(From file path);
+        hash = hash calculations;
+        Files->SetStringField(TEXT("FileName"), *hash.ToString());
+
+    8. Save RSSManifest.json:
+        
+        8.a Serialize to string
+                FString OutputString;
+                TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+                FJsonSerializer::Serialize(RootObject.ToSharedRef(), Writer);
+
+        8.b Ensure directory exists
+                IFileManager::Get().MakeDirectory(*RSSPath, true);
+
+        8.c Save to file
+                FFileHelper::SaveStringToFile(OutputString, *ManifestPath);
+    */
+
+    return nullptr;
+}
+
+void RSSManifestInit_UTIL()
+{
+
+    // Declare defaults
+    FString Directory = OpenFolderDialog_UTIL();
+    FString SearchPattern = TEXT("*");
+    TArray<FString> FoundFiles;
+
+    IFileManager& FileManager = IFileManager::Get();
+
+    // Retrieve file list
+    FileManager.FindFilesRecursive(FoundFiles, *Directory, *SearchPattern, true, false);
+
+
+    // Check if array is not empty - assumed to handle more then 1 macro
+    int32 MacrosNum = FoundFiles.Num();
+    if (MacrosNum <= 0)
+    {
+        UE_LOG(LogTemp, Error, TEXT("UTIL::RSSManifestInit::Failed to load files - returning"));
+        return;
     }
+
+    // Obtain full paths to reflect the macros and remove full path to reflect the files name
+    for (const FString& FilePath : FoundFiles)
+    {
+        UE_LOG(LogTemp, Error, TEXT("\n %s \n"), *FilePath);
+    }
+
+    // FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
+    // FString ManifestPath = RSSPath / TEXT("RSSManifest.json");
+ 
+    // // Check if file already exists
+    // if (!FPaths::FileExists(ManifestPath))
+    // {
+    //     // Create base JSON object
+    //     TSharedPtr<FJsonObject> RootObject = MakeShareable(new FJsonObject());
+    //     TSharedPtr<FJsonObject> DescriptorObject = MakeShareable(new FJsonObject());
+    //     TSharedPtr<FJsonObject> StructureRoot = MakeShareable(new  FJsonObject());
+    //     // TSharedPtr<FJsonObject> JSONObject = MakeShareable(new  FJsonObject());
+
+    //     FString StructureRootName = FPaths::GetCleanFilename(OpenFolderDialog_UTIL());
+
+    //     DescriptorObject->SetStringField(TEXT("RSSManifest"), TEXT("description"));
+    //     StructureRoot->SetStringField(TEXT("LastLocalCommit"), TEXT("timestamp"));
+    //     StructureRoot->SetStringField(TEXT("LastGitHubCommit"), TEXT("timestamp"));
+
+    //     RootObject->SetObjectField(TEXT("descriptor"), DescriptorObject);
+    //     RootObject->SetObjectField(StructureRootName, StructureRoot);
+
+    //     // Serialize to string
+    //     FString OutputString;
+    //     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+    //     FJsonSerializer::Serialize(RootObject.ToSharedRef(), Writer);
+
+    //     // Ensure directory exists
+    //     IFileManager::Get().MakeDirectory(*RSSPath, true);
+
+    //     // Save to file
+    //     FFileHelper::SaveStringToFile(OutputString, *ManifestPath);
+    // }
 
 
 }
