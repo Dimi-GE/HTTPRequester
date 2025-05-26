@@ -325,7 +325,7 @@ TSharedPtr<FJsonObject> ThrowNewJSONObject_UTIL( /* Root directory of the struct
     3. Set last local commit timestamp:
         Macros->SetStringField(TEXT("LastLocalCommit"), TEXT("timestamp"));
 
-    4. Set the last GitHub commit timestamp:`
+    4. Set the last GitHub commit timestamp:
         Macros->SetStringField(TEXT("LastGitHubCommit"), TEXT("timestamp"));
 
     5. Create Categories (or custom name) JSON object:
@@ -334,14 +334,15 @@ TSharedPtr<FJsonObject> ThrowNewJSONObject_UTIL( /* Root directory of the struct
         Macros->SetObjectField(CategoriesName, Categories);
     
     6. Find first internal directory:
-        6.a Create new JSON object for the directory with name:
+        6.a Obtain subdirectory name from the full path;
+        6.b Create new JSON object for the directory with name:
                 TSharedPtr<FJsonObject> 1stDir = MakeShareable(new FJsonObject());
                 FString 1stDirName = FPaths::GetCleanFilename(Get clean folder name);
                 Categories->SetObjectField(1stDirName, 1stDir);
-        6.b Calculate and set the Hash string field:
+        6.c Calculate and set the Hash string field:
                 hash = hash calculations;
                 1stDir->SetStringField(TEXT("hash"), *hash.ToString());
-        6.c Create Files(Content?..) JSON object:
+        6.d Create Files(Content?..) JSON object:
                 TSharedPtr<FJsonObject> Files = MakeShareable(new FJsonObject());
                 1stDir->SetObjectField(TEXT("Files"), Files);
 
@@ -390,10 +391,23 @@ void RSSManifestInit_UTIL()
         return;
     }
 
-    // Obtain full paths to reflect the macros and remove full path to reflect the files name
+    // Obtain full paths to reflect the macros (currently ignores possible subdirectories inside the root one)
     for (const FString& FilePath : FoundFiles)
     {
-        UE_LOG(LogTemp, Error, TEXT("\n %s \n"), *FilePath);
+        FString RelativePath = FilePath;
+        FPaths::MakePathRelativeTo(RelativePath, *Directory);
+
+        FString MacrosDir;
+        FString RemainingPath;
+        FString FileName;
+
+        RelativePath.Split(TEXT("/"), &MacrosDir, &RemainingPath);
+        RemainingPath.Split(TEXT("/"), &RemainingPath, &FileName);
+
+        FString CategoryName = RemainingPath.Contains(TEXT("/")) ? RemainingPath.Left(RemainingPath.Find(TEXT("/"))) : RemainingPath;
+
+        UE_LOG(LogTemp, Error, TEXT("\n CategoryName: %s \n"), *CategoryName);
+        UE_LOG(LogTemp, Error, TEXT("\n FileName: %s \n"), *FileName);
     }
 
     // FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
