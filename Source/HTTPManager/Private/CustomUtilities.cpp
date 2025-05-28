@@ -16,6 +16,8 @@
 // Forward Declared Functions
 TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWrite);
 TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile_UTIL(FString JSONSubPath);
+FString CalculateFileHash(const FString& FilePath);
+FString CalculateDirectoryHash(const TMap<FString, FString>& FileHashes);
 
 // The function throws material instance dynamic - hard-coded to work M_SyncNotify so far;
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
@@ -376,6 +378,7 @@ void RSSManifestInit_UTIL()
     FString Directory = OpenFolderDialog_UTIL();
     FString SearchPattern = TEXT("*");
     TArray<FString> FoundFiles;
+    TMap<FString, FString> FileHashes;
 
     IFileManager& FileManager = IFileManager::Get();
 
@@ -394,6 +397,9 @@ void RSSManifestInit_UTIL()
     // Obtain full paths to reflect the macros (currently ignores possible subdirectories inside the root one)
     for (const FString& FilePath : FoundFiles)
     {
+
+        FString FileHash = CalculateFileHash(FilePath);
+
         FString RelativePath = FilePath;
         FPaths::MakePathRelativeTo(RelativePath, *Directory);
 
@@ -406,8 +412,12 @@ void RSSManifestInit_UTIL()
 
         FString CategoryName = RemainingPath.Contains(TEXT("/")) ? RemainingPath.Left(RemainingPath.Find(TEXT("/"))) : RemainingPath;
 
-        UE_LOG(LogTemp, Error, TEXT("\n CategoryName: %s \n"), *CategoryName);
-        UE_LOG(LogTemp, Error, TEXT("\n FileName: %s \n"), *FileName);
+        FileHashes.Add(FileName, FileHash);
+        
+        FString DirectoryHash = CalculateDirectoryHash(FileHashes);
+
+        UE_LOG(LogTemp, Error, TEXT("\n CategoryName: %s; Haash: %s.\n"), *CategoryName, *DirectoryHash);
+        UE_LOG(LogTemp, Error, TEXT("\n FileName: %s; Hash: %s.\n"), *FileName, *FileHash);
     }
 
     // FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
@@ -443,5 +453,64 @@ void RSSManifestInit_UTIL()
     //     FFileHelper::SaveStringToFile(OutputString, *ManifestPath);
     // }
 
+}
 
+FString CalculateFileHash(const FString& FilePath)
+{
+    // Read the file into a byte array
+    TArray<uint8> FileData;
+    if (!FFileHelper::LoadFileToArray(FileData, *FilePath))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to load file: %s"), *FilePath);
+        return TEXT("InvalidHash");
+    }
+
+    // Generate MD5 hash
+    FMD5 Md5Gen;
+    Md5Gen.Update(FileData.GetData(), FileData.Num());
+
+    // Digest buffer
+    uint8 Digest[16];
+    Md5Gen.Final(Digest);
+
+    // Convert digest to hex string
+    FString HashString;
+    for (int32 i = 0; i < 16; i++)
+    {
+        HashString += FString::Printf(TEXT("%02x"), Digest[i]);
+    }
+
+    return HashString;
+}
+
+FString CalculateDirectoryHash(const TMap<FString, FString>& FileHashes)
+{
+    // Step 1: Sort file names for consistent hash order
+    TArray<FString> SortedKeys;
+    FileHashes.GetKeys(SortedKeys);
+    SortedKeys.Sort();
+
+    // Step 2: Concatenate the hashes
+    FString CombinedHashes;
+    for (const FString& FileName : SortedKeys)
+    {
+        CombinedHashes += FileName + FileHashes[FileName]; // Optional: include filename for more uniqueness
+    }
+
+    // Step 3: Hash the concatenated string
+    FTCHARToUTF8 Converter(*CombinedHashes);
+    FMD5 Md5Gen;
+    Md5Gen.Update((const uint8*)Converter.Get(), Converter.Length());
+
+    uint8 Digest[16];
+    Md5Gen.Final(Digest);
+
+    // Step 4: Convert to hex string
+    FString FinalHash;
+    for (int32 i = 0; i < 16; i++)
+    {
+        FinalHash += FString::Printf(TEXT("%02x"), Digest[i]);
+    }
+
+    return FinalHash;
 }
