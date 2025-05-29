@@ -437,14 +437,57 @@ void RSSManifestInit_UTIL()
         }
     }
 
+    FString MacrosDir;
+    FString RemainingPath;
+    FString RelativePath = FoundFiles[0];
+
+    FPaths::MakePathRelativeTo(RelativePath, *Directory);
+    RelativePath.Split(TEXT("/"), &MacrosDir, &RemainingPath);
+
+
+    UE_LOG(LogTemp, Warning, TEXT("\n MacrosDir: %s; RemainingPath: %s.\n"), *MacrosDir, *RemainingPath);
+    
+    FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
+    FString ManifestPath = RSSPath / TEXT("RSSManifest.json");
+
+    // Create base JSON object
+    TSharedPtr<FJsonObject> RootObject = MakeShareable(new FJsonObject());
+    TSharedPtr<FJsonObject> StructureRoot = MakeShareable(new  FJsonObject());
+
+    RootObject->SetObjectField(MacrosDir, StructureRoot);
 
     for(const TPair <FString, FString> Pair : CategoryHashes)
     {
-        FString Key = Pair.Key;
-        FString Value = Pair.Value;
+        FString Category = Pair.Key;
+        FString CategoryHash = Pair.Value;
 
-        UE_LOG(LogTemp, Warning, TEXT("\n CategoryName: %s; Hash: %s.\n"), *Key, *Value);
+        TSharedPtr<FJsonObject> CategoryObject = MakeShareable(new  FJsonObject());
+        TSharedPtr<FJsonObject> FileObject = MakeShareable(new  FJsonObject());
+
+        StructureRoot->SetObjectField(Category, CategoryObject);
+        CategoryObject->SetStringField(TEXT("Hash:"), CategoryHash);
+        CategoryObject->SetObjectField(TEXT("Files:"), FileObject);
+
+
+        for(const TPair <FString, FString> FilePair : FileHashes)
+        {
+            FString File = FilePair.Key;
+            FString FileHash = FilePair.Value;
+
+            FileObject->SetStringField(File, FileHash);
+        }
     }
+
+    // Serialize to string
+    FString OutputString;
+    TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+    FJsonSerializer::Serialize(RootObject.ToSharedRef(), Writer);
+
+    // Ensure directory exists
+    IFileManager::Get().MakeDirectory(*RSSPath, true);
+
+    // Save to file
+    FFileHelper::SaveStringToFile(OutputString, *ManifestPath);
 
     // Obtain full paths to reflect the macros (currently ignores possible subdirectories inside the root one)
     // for (const FString& FilePath : FoundFiles)
