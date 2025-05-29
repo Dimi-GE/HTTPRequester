@@ -373,11 +373,12 @@ TSharedPtr<FJsonObject> ThrowNewJSONObject_UTIL( /* Root directory of the struct
 
 void RSSManifestInit_UTIL()
 {
-
     // Declare defaults
     FString Directory = OpenFolderDialog_UTIL();
     FString SearchPattern = TEXT("*");
     TArray<FString> FoundFiles;
+
+    TMap<FString, FString> CategoryHashes;
     TMap<FString, FString> FileHashes;
 
     IFileManager& FileManager = IFileManager::Get();
@@ -394,7 +395,6 @@ void RSSManifestInit_UTIL()
         return;
     }
 
-    // Obtain full paths to reflect the macros (currently ignores possible subdirectories inside the root one)
     for (const FString& FilePath : FoundFiles)
     {
 
@@ -410,15 +410,67 @@ void RSSManifestInit_UTIL()
         RelativePath.Split(TEXT("/"), &MacrosDir, &RemainingPath);
         RemainingPath.Split(TEXT("/"), &RemainingPath, &FileName);
 
-        FString CategoryName = RemainingPath.Contains(TEXT("/")) ? RemainingPath.Left(RemainingPath.Find(TEXT("/"))) : RemainingPath;
-
         FileHashes.Add(FileName, FileHash);
-        
-        FString DirectoryHash = CalculateDirectoryHash(FileHashes);
 
-        UE_LOG(LogTemp, Error, TEXT("\n CategoryName: %s; Haash: %s.\n"), *CategoryName, *DirectoryHash);
-        UE_LOG(LogTemp, Error, TEXT("\n FileName: %s; Hash: %s.\n"), *FileName, *FileHash);
+        // UE_LOG(LogTemp, Error, TEXT("\n FileName: %s; Hash: %s.\n"), *FileName, *FileHash);
     }
+
+    for (const FString& DirectoryPath : FoundFiles)
+    {
+
+        FString RelativePath = DirectoryPath;
+        FPaths::MakePathRelativeTo(RelativePath, *Directory);
+
+        FString MacrosDir;
+        FString RemainingPath;
+        FString FileName;
+
+        RelativePath.Split(TEXT("/"), &MacrosDir, &RemainingPath);
+
+        if(RemainingPath.Contains(TEXT("/")))
+        {
+            FString CategoryName = RemainingPath.Contains(TEXT("/")) ? RemainingPath.Left(RemainingPath.Find(TEXT("/"))) : RemainingPath;
+
+            FString DirectoryHash = CalculateDirectoryHash(FileHashes);
+
+            CategoryHashes.FindOrAdd(CategoryName, DirectoryHash);
+        }
+    }
+
+
+    for(const TPair <FString, FString> Pair : CategoryHashes)
+    {
+        FString Key = Pair.Key;
+        FString Value = Pair.Value;
+
+        UE_LOG(LogTemp, Warning, TEXT("\n CategoryName: %s; Hash: %s.\n"), *Key, *Value);
+    }
+
+    // Obtain full paths to reflect the macros (currently ignores possible subdirectories inside the root one)
+    // for (const FString& FilePath : FoundFiles)
+    // {
+
+    //     FString FileHash = CalculateFileHash(FilePath);
+
+    //     FString RelativePath = FilePath;
+    //     FPaths::MakePathRelativeTo(RelativePath, *Directory);
+
+    //     FString MacrosDir;
+    //     FString RemainingPath;
+    //     FString FileName;
+
+    //     RelativePath.Split(TEXT("/"), &MacrosDir, &RemainingPath);
+    //     RemainingPath.Split(TEXT("/"), &RemainingPath, &FileName);
+
+    //     FString CategoryName = RemainingPath.Contains(TEXT("/")) ? RemainingPath.Left(RemainingPath.Find(TEXT("/"))) : RemainingPath;
+
+    //     FileHashes.Add(FileName, FileHash);
+        
+    //     FString DirectoryHash = CalculateDirectoryHash(FileHashes);
+
+    //     UE_LOG(LogTemp, Error, TEXT("\n CategoryName: %s; Haash: %s.\n"), *CategoryName, *DirectoryHash);
+    //     UE_LOG(LogTemp, Error, TEXT("\n FileName: %s; Hash: %s.\n"), *FileName, *FileHash);
+    // }
 
     // FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
     // FString ManifestPath = RSSPath / TEXT("RSSManifest.json");
