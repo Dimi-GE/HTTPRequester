@@ -1,29 +1,3 @@
-19.05.25 - 23.05.25
-New: 44 + 18 + 19 + 16 + 14(Spam: 30 + 11 + 11 + 11 + 8, Relevant: 14 + 7 + 8 + 5 + 6); Closed: 37; Left: 4;
-BPR: 6; Relevant: ; Irrelevant: ; Closed: 0; Left: 353;
-
-R: 0;
-I: 0;
-
-L: 353;
-
-Prior BPR: 89; Relevant: ; Irrelevant: ; Closed: 0; Left: 121;
-R: 15;
-I: 8;
-
-L: 0;
-
-Issues.
-New:
-
-BPR:
-
-Prior BPR:
-
-
-Feature requests:
-
-
 Notes:
 
 psl keep in mind that once we remove the contribution banner- we need to update the links to one time donation in support emails and Privacy digest CTA
@@ -58,3 +32,27 @@ Chrome(Firefox) browser for testing;
 1. First step - find people;
 2. Ask for Chrome - AdGurad & uBlock Lite;
 3. Ask for Firefox - uBlock Origin;
+
+
+Войтович (Минск):
+Ewa Dąmbrowska (Gdańsk):
+Oleg Suworin - Praktyczny kurs leczenia głodowaniem:
+https://www.scribd.com/document/55476177/Aleksiej-Suworin-Praktyczny-Kurs-Leczenia-Glodem1
+Etapy:
+Praca mentalma.
+Nauczanie się w grupie.
+Pracując z mentorem.
+Scribd
+Aleksiej Suworin - Praktyczny Kurs Leczenia Glodem1 | PDF
+Scribd is the world's largest social reading and publishing site.
+[9:15 AM] Dimi
+Hi Dimi, hope you are well! Can you pls improve the flow a bit here by asking for only one thing. so when we ask for review, suppress the donation message . we’re asking for too many things at the same time and might end up with none done by users
+Dimi  [10:43 AM]
+Reasons why we do Bob.
+Dimi  [4:18 PM]
+https://hackmd.io/xEEdorKzQgKDdujx67JQaA?both
+
+Dimi
+  3:16 PM
+Contact Eva on the following ticket:
+https://ghostery.zendesk.com/agent/tickets/82527
