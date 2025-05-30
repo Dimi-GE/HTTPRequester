@@ -511,7 +511,11 @@ void RSSManifestInit_UTIL()
 
         FileHashes.Add(FileName, FileHash);
 
-        SortDirectoriesAndFiles.FindOrAdd(CategoryName).Add(FileName, FileHash);
+        if(!RemainingPath.Contains(TEXT(".")))
+        {
+            SortDirectoriesAndFiles.FindOrAdd(CategoryName).Add(FileName, FileHash);
+            // UE_LOG(LogTemp, Error, TEXT("\n RemainingPath: %s.\n"), *RemainingPath);
+        }
 
         // UE_LOG(LogTemp, Error, TEXT("\n RemainingPath: %s; CategoryName: %s; FileName: %s.\n"), *RemainingPath, *CategoryName, *FileName);
 
@@ -529,6 +533,8 @@ void RSSManifestInit_UTIL()
     {
         FString Category = Dir.Key;
         TMap <FString, FString> Files = Dir.Value;
+
+
 
         for (TPair<FString, FString> File : Files)
         {
