@@ -529,23 +529,56 @@ void RSSManifestInit_UTIL()
         // UE_LOG(LogTemp, Error, TEXT("\n FileName: %s; Hash: %s.\n"), *FileName, *FileHash);
     }
 
+
+    FString StructureRootName = FPaths::GetCleanFilename(Directory);
+    // UE_LOG(LogTemp, Error, TEXT("\n StructureRootName: %s;\n"), *StructureRootName);
+
+
+    FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
+    FString ManifestPath = RSSPath / TEXT("RSSManifest.json");
+
+    // Create base JSON object
+    TSharedPtr<FJsonObject> RootObject = MakeShareable(new FJsonObject());
+    TSharedPtr<FJsonObject> StructureRoot = MakeShareable(new  FJsonObject());
+
+    RootObject->SetObjectField(StructureRootName, StructureRoot);
+
     for(TPair<FString, TMap<FString, FString>>& Dir : SortDirectoriesAndFiles)
     {
-        FString Category = Dir.Key;
+        FString CategoryName = Dir.Key;
         TMap <FString, FString> Files = Dir.Value;
 
+        TSharedPtr<FJsonObject> CategoryObject = MakeShareable(new FJsonObject());
+        TSharedPtr<FJsonObject> FilesObject = MakeShareable(new FJsonObject());
+        FString CategoriesHash = CalculateDirectoryHash(Files);
 
+        StructureRoot->SetObjectField(CategoryName, CategoryObject);
+        CategoryObject->SetStringField(TEXT("Hash:"),CategoriesHash);
+        CategoryObject->SetObjectField(TEXT("Files:"), FilesObject);
+        
 
         for (TPair<FString, FString> File : Files)
         {
             FString FileName = File.Key;
             FString FileHash = File.Value;
 
-            UE_LOG(LogTemp, Error, TEXT("\n Category: %s; File: %s; Hash: %s.\n"), *Category, *FileName, *FileHash);
+            FilesObject->SetStringField(FileName, FileHash);
+            // UE_LOG(LogTemp, Error, TEXT("\n Category: %s; File: %s; Hash: %s.\n"), *Category, *FileName, *FileHash);
         }
 
         // FString DirectoryHash = CalculateDirectoryHash(FileHashes);
     }
+
+    // Serialize to string
+    FString OutputString;
+    TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+    FJsonSerializer::Serialize(RootObject.ToSharedRef(), Writer);
+
+    // Ensure directory exists
+    IFileManager::Get().MakeDirectory(*RSSPath, true);
+
+    // Save to file
+    FFileHelper::SaveStringToFile(OutputString, *ManifestPath);
 
     // FString RSSPath = FPaths::ProjectDir() / TEXT("RSS");
     // FString ManifestPath = RSSPath / TEXT("RSSManifest.json");
