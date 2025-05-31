@@ -337,6 +337,10 @@ void RSSManifestInit_UTIL()
         {
             SortDirectoriesAndFiles.FindOrAdd(CategoryName).Add(FileName, FileHash);
         }
+        else
+        {
+            SortDirectoriesAndFiles.FindOrAdd(MacrosDir).Add(RemainingPath, FileHash);
+        }
     }
 
     FString StructureRootName = FPaths::GetCleanFilename(Directory);
@@ -359,16 +363,27 @@ void RSSManifestInit_UTIL()
         TSharedPtr<FJsonObject> FilesObject = MakeShareable(new FJsonObject());
         FString CategoriesHash = CalculateDirectoryHash_UTIL(Files);
 
-        StructureRoot->SetObjectField(CategoryName, CategoryObject);
-        CategoryObject->SetStringField(TEXT("Hash:"),CategoriesHash);
-        CategoryObject->SetObjectField(TEXT("Files:"), FilesObject);
+        if(CategoryName != StructureRootName)
+        {
+            StructureRoot->SetObjectField(CategoryName, CategoryObject);
+            CategoryObject->SetStringField(TEXT("Hash:"), CategoriesHash);
+            CategoryObject->SetObjectField(TEXT("Files:"), FilesObject);
+        }
         
         for (TPair<FString, FString> File : Files)
         {
             FString FileName = File.Key;
             FString FileHash = File.Value;
 
-            FilesObject->SetStringField(FileName, FileHash);
+            if(CategoryName == StructureRootName)
+            {
+                StructureRoot->SetStringField(TEXT("Hash:"), CategoriesHash);
+                StructureRoot->SetStringField(FileName, FileHash);
+            }
+            else
+            {
+                FilesObject->SetStringField(FileName, FileHash);
+            }     
         }
     }
 
