@@ -27,29 +27,37 @@ public class HTTPManager : ModuleRules
 
 
         // -------- ZIP SUPPORT (Minizip) --------
-        // Path to ThirdParty/MiniZIPLib
-        string ThirdPartyPath = Path.Combine(ModuleDirectory, "..", "ThirdParty", "MiniZIPLib");
-        PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "include"));
-        PrivateIncludePaths.Add(Path.Combine(ThirdPartyPath, "include"));
-		
-		
-        // 🎯 Add the core MiniZIP .cpp files
-        // string[] MinizipSources = new string[]
-		// {
-		// 	"mz_strm.cpp",
-		// 	"mz_strm_buf.cpp",
-		// 	"mz_strm_mem.cpp",
-		// 	"mz_strm_os.cpp",
-		// 	"mz_zip_rw.cpp",
-		// 	"mz_strm_wzaes.cpp",
-		// 	"mz_crypt.cpp",
-		// 	"mz_strm_split.cpp"
-        // };
+		// Path to headers
+		// Path to ThirdParty/MiniZIPLib
+		string ThirdPartyPath = Path.Combine(ModuleDirectory, "..", "ThirdParty", "MiniZIPLib");
+		string MiniZipIncludePath = Path.Combine(ThirdPartyPath, "include");
+		string MiniZipSourcePath = Path.Combine(ModuleDirectory, "Private", "MiniZIPLib");
 
-		// foreach (string SourceFile in MinizipSources)
-		// {
-		// 	PublicAdditionalLibraries.Add(Path.Combine(MiniZipSrcPath, SourceFile));
-		// }
+		PublicIncludePaths.Add(MiniZipIncludePath);
+		PrivateIncludePaths.Add(MiniZipIncludePath);
+
+		// Make sure Unreal knows to compile these .cpp files
+		string[] MinizipFiles =
+		{
+			"mz_os.cpp",
+			"mz_strm.cpp",
+			"mz_strm_buf.cpp",
+			"mz_strm_mem.cpp",
+			"mz_strm_os.cpp",
+			"mz_strm_pkcrypt.cpp",
+			"mz_strm_split.cpp",
+			"mz_strm_wzaes.cpp",
+			"mz_zip_rw.cpp",
+			"mz_crypt.cpp",
+			"mz_zip.cpp"
+		};
+
+		foreach (string file in MinizipFiles)
+		{
+			string FullPath = Path.Combine(MiniZipSourcePath, file);
+			RuntimeDependencies.Add(FullPath); // Optional, but doesn't hurt
+			PrivateDependencyModuleNames.Add("zlib"); // If you're using mz_strm_zlib
+		}
 
         // // In case some .c files are not compiled without this:
         // bUseUnity = false;
