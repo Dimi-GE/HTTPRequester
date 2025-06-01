@@ -793,7 +793,11 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         const char *backslash = NULL;
 
         /* Ensure all slashes are written as forward slashes according to 4.4.17.1 */
-        while ((err == MZ_OK) && (backslash = strchr(next, '\\'))) {
+        while (err == MZ_OK) {
+            backslash = strchr(next, '\\');
+            if (!backslash)
+                break;
+                
             int32_t part_length = (int32_t)(backslash - next);
 
             if (mz_stream_write(stream, next, part_length) != part_length || mz_stream_write(stream, "/", 1) != 1)
@@ -2046,7 +2050,7 @@ int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len) {
     /* aes encryption validation will fail if compressed_size > 0 */
     read = mz_stream_read(zip->compress_stream, buf, len);
     if (read > 0)
-        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, read);
+        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, reinterpret_cast<const uint8_t*>(buf), read);
 
     mz_zip_print("Zip - Entry - Read - %" PRId32 " (max %" PRId32 ")\n", read, len);
 
@@ -2061,7 +2065,7 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len) {
         return MZ_PARAM_ERROR;
     written = mz_stream_write(zip->compress_stream, buf, len);
     if (written > 0)
-        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, written);
+        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, reinterpret_cast<const uint8_t*>(buf), written);
 
     mz_zip_print("Zip - Entry - Write - %" PRId32 " (max %" PRId32 ")\n", written, len);
     return written;

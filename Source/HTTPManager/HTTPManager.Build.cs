@@ -56,7 +56,7 @@ public class HTTPManager : ModuleRules
 		{
 			string FullPath = Path.Combine(MiniZipSourcePath, file);
 			RuntimeDependencies.Add(FullPath); // Optional, but doesn't hurt
-			PrivateDependencyModuleNames.Add("zlib"); // If you're using mz_strm_zlib
+			// PrivateDependencyModuleNames.Add("zlib"); // If you're using mz_strm_zlib
 		}
 
         // // In case some .c files are not compiled without this:
