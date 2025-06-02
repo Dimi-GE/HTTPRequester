@@ -2,6 +2,7 @@
 #include "ThirdParty/minizip-ng/include/mz.h"
 #include "ThirdParty/minizip-ng/include/mz_os.h"
 #include "ThirdParty/minizip-ng/include/mz_zip.h"
+#include "ThirdParty/minizip-ng/include/mz_strm.h"
 #include "ThirdParty/minizip-ng/include/mz_strm_os.h"
 // File management
 #include "HAL/FileManager.h"
@@ -12,23 +13,26 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
 
 void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
 {
-    void* FileStream = nullptr;
-    void* ZipHandle = nullptr;
-    
+    void* FileStream = mz_stream_os_create();
     // Step 1: Create the file stream
-    mz_stream_os_create(&FileStream);
-    mz_stream_os_set_filename(FileStream, TCHAR_TO_ANSI(*ZipPath));
-
-    // Step 2: Open the file stream (write mode)
-    if (mz_stream_open(FileStream, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) != MZ_OK)
+    if (FileStream == nullptr)
     {
-        // handle error
-        UE_LOG(LogTemp, Error, TEXT("ZipHandler::Failed to open stream for writing - returning. . ."));
+        UE_LOG(LogTemp, Error, TEXT("CreateZip: Failed to create file stream"));
+        return;
+    }
+
+    // Open the file stream with path directly
+    int32 Result = mz_stream_open(FileStream, TCHAR_TO_ANSI(*ZipPath), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
+    if (Result != MZ_OK)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to open file stream: %d"), Result);
+        mz_stream_os_delete(&FileStream);
         return;
     }
 
     // Step 3: Create and open zip handle
-    mz_zip_create(&ZipHandle);
+
+    void* ZipHandle = mz_zip_create();
     if (mz_zip_open(ZipHandle, FileStream, MZ_OPEN_MODE_WRITE) != MZ_OK)
     {
         // handle error
@@ -42,18 +46,22 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
     for (const FString& FilePath : FilePaths)
     {
         FString FileName = FPaths::GetCleanFilename(FilePath); // Only filename in archive
-        void* FileEntryStream = nullptr;
-        mz_stream_os_create(&FileEntryStream);
-        mz_stream_os_set_filename(FileEntryStream, TCHAR_TO_ANSI(*FilePath));
+        void* FileEntryStream = mz_stream_os_create();
 
-        if (mz_stream_open(FileEntryStream, MZ_OPEN_MODE_READ) != MZ_OK)
+        if (mz_stream_open(FileEntryStream, TCHAR_TO_ANSI(*FilePath), MZ_OPEN_MODE_READ) != MZ_OK)
         {
             UE_LOG(LogTemp, Warning, TEXT("ZipHandler::Failed to open file %s - skipping..."), *FilePath);
             mz_stream_delete(&FileEntryStream);
             continue;
         }
 
-        if (mz_zip_entry_open(ZipHandle, TCHAR_TO_ANSI(*FileName), MZ_COMPRESS_METHOD_DEFLATE, 9, 0) != MZ_OK)
+        mz_zip_file FileMeta = {};
+        FileMeta.version_madeby = MZ_VERSION_MADEBY;
+        FileMeta.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
+        FileMeta.filename = TCHAR_TO_ANSI(*FileName);
+        FileMeta.modified_date = time(nullptr); // or use UE’s FDateTime if needed
+
+        if (mz_zip_entry_write_open(ZipHandle, &FileMeta, MZ_COMPRESS_LEVEL_DEFAULT, 0, nullptr) != MZ_OK)
         {
             UE_LOG(LogTemp, Warning, TEXT("ZipHandler::Failed to open zip entry for %s - skipping..."), *FilePath);
             mz_stream_close(FileEntryStream);
@@ -85,5 +93,4 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
     mz_stream_delete(&FileStream);
 
     UE_LOG(LogTemp, Log, TEXT("ZipHandler::ZIP archive created successfully at %s"), *ZipPath);
-
 }
