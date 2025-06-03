@@ -10,6 +10,7 @@
 
 // Forward Declared Functions
 void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
+TArray<TPair<FString, FString>> CollectFilesForZip(const FString& RootFolder);
 
 void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
 {
@@ -22,7 +23,7 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
     }
 
     // Open the file stream with path directly
-    int32 Result = mz_stream_open(FileStream, TCHAR_TO_ANSI(*ZipPath), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
+    int32 Result = mz_stream_open(FileStream, TCHAR_TO_UTF8(*ZipPath), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
     if (Result != MZ_OK)
     {
         UE_LOG(LogTemp, Error, TEXT("Failed to open file stream: %d"), Result);
@@ -42,18 +43,19 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
         return;
     }
 
-        // Step 4: Add each file
+    // Step 4: Add each file
     for (const FString& FilePath : FilePaths)
     {
-        FString FileName = FPaths::GetCleanFilename(FilePath); // Only filename in archive
         void* FileEntryStream = mz_stream_os_create();
 
-        if (mz_stream_open(FileEntryStream, TCHAR_TO_ANSI(*FilePath), MZ_OPEN_MODE_READ) != MZ_OK)
+        if (mz_stream_open(FileEntryStream, TCHAR_TO_UTF8(*FilePath), MZ_OPEN_MODE_READ) != MZ_OK)
         {
             UE_LOG(LogTemp, Warning, TEXT("ZipHandler::Failed to open file %s - skipping..."), *FilePath);
             mz_stream_delete(&FileEntryStream);
             continue;
         }
+
+        FString FileName = FPaths::GetCleanFilename(FilePath); // Only filename in archive
 
         mz_zip_file FileMeta = {};
         FileMeta.version_madeby = MZ_VERSION_MADEBY;
@@ -61,7 +63,7 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
         FileMeta.filename = TCHAR_TO_ANSI(*FileName);
         FileMeta.modified_date = time(nullptr); // or use UE’s FDateTime if needed
 
-        if (mz_zip_entry_write_open(ZipHandle, &FileMeta, MZ_COMPRESS_LEVEL_DEFAULT, 0, nullptr) != MZ_OK)
+        if (mz_zip_entry_write_open(ZipHandle, &FileMeta, MZ_COMPRESS_METHOD_STORE, 0, nullptr) != MZ_OK)
         {
             UE_LOG(LogTemp, Warning, TEXT("ZipHandler::Failed to open zip entry for %s - skipping..."), *FilePath);
             mz_stream_close(FileEntryStream);
@@ -93,4 +95,31 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
     mz_stream_delete(&FileStream);
 
     UE_LOG(LogTemp, Log, TEXT("ZipHandler::ZIP archive created successfully at %s"), *ZipPath);
+}
+
+TArray<TPair<FString, FString>> CollectFilesForZip(const FString& RootFolder)
+{
+    TArray<TPair<FString, FString>> FileList;
+
+    // Normalize folder path
+    FString NormalizedRoot = RootFolder;
+    FPaths::NormalizeDirectoryName(NormalizedRoot);
+
+    TArray<FString> FoundFiles;
+    IFileManager::Get().FindFilesRecursive(
+        FoundFiles,
+        *NormalizedRoot,
+        TEXT("*.*"),
+        true,   // Files
+        false   // Don't include directories
+    );
+
+    for (const FString& FilePath : FoundFiles)
+    {
+        FString RelativePath = FilePath;
+        FPaths::MakePathRelativeTo(RelativePath, *NormalizedRoot);
+        FileList.Add(TPair<FString, FString>(FilePath, RelativePath));
+    }
+
+    return FileList;
 }

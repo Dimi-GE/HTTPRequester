@@ -14,7 +14,7 @@
 
 // Utilities
 #include "HAL/PlatformFilemanager.h"
-// Externals
+// Custom Utilities Externals
 extern UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue);
 extern void ThrowDialogMessage(FString Message);
 // extern TSharedPtr<FJsonObject> ThrowRSSInitObject(FString RSSInitModule, FString JSONObject, int32 ReadWriteBinary);
@@ -25,6 +25,7 @@ extern void SaveJsonArrayToFile_UTIL(const FString& JSONSubPath, const TArray<TS
 
 extern void RSSManifestInit_UTIL();
 
+void MakeZIPInDir();
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -40,6 +41,7 @@ void UMacrosManager::NativeConstruct()
     // Buttons Dynamic Delegates
     RSSInit_BTN->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
     RSSManifestInit_BTN->OnClicked.AddDynamic(this, &UMacrosManager::RSSManifestInit);
+    ZIP_BTN->OnClicked.AddDynamic(this, &UMacrosManager::ZIPFiles_UTIL);
 
     this->HandleThisLifycycle();
 
@@ -622,6 +624,11 @@ void UMacrosManager::SyncLastCommitWithLocalChanges(FString RepositoryURL, FStri
     // this->GetLastModifiedFromGitHub(RepositoryURL, LocalTimeStamp, bIsSyncNeeded);
 }
 
+void UMacrosManager::ZIPFiles_UTIL()
+{
+    UE_LOG(LogTemp, Warning, TEXT("ZIPFiles_UTIL::Called."));
+    MakeZIPInDir();
+}
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
 // {
 //     IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();

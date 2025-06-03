@@ -79,6 +79,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	class UButton* RSSManifestInit_BTN;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* ZIP_BTN;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* SYNC_BTN;
 
 	UPROPERTY(meta = (BindWidget))
@@ -143,6 +146,9 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	UFUNCTION()
 	void RSSManifestInit();
+
+	UFUNCTION()
+	void ZIPFiles_UTIL();
 
 	private:
 

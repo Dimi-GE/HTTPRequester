@@ -12,10 +12,6 @@
 // JSON
 #include "Json.h"
 #include "JsonUtilities.h"
-// ZIP
-// #include "mz.h"
-// #include "mz_zip.h"
-// #include "mz_zip_rw.h"
 
 // Forward Declared Functions
 TSharedPtr<FJsonObject> ThrowRSSInitModule_RWUtil(FString JSONSubPath, int32 ReadWrite);
@@ -23,6 +19,9 @@ TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile_UTIL(FString JSONSubPath);
 FString OpenFolderDialog_UTIL();
 FString CalculateFileHash_UTIL(const FString& FilePath);
 FString CalculateDirectoryHash_UTIL(const TMap<FString, FString>& FileHashes);
+
+// ZIP Handler Externals
+extern void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
 
 // The function throws material instance dynamic - hard-coded to work M_SyncNotify so far;
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
@@ -485,4 +484,33 @@ FString CalculateDirectoryHash_UTIL(const TMap<FString, FString>& FileHashes)
     }
 
     return FinalHash;
+}
+
+void MakeZIPInDir()
+{
+    UE_LOG(LogTemp, Warning, TEXT("MakeZIPInDir::Launched."));
+
+    FString Directory = OpenFolderDialog_UTIL();
+    FString SearchPattern = TEXT("*");
+    TArray<FString> FoundFiles;
+
+    IFileManager& FileManager = IFileManager::Get();
+
+    // Retrieve file list
+    FileManager.FindFilesRecursive(FoundFiles, *Directory, *SearchPattern, true, false);
+
+
+    // Check if array is not empty - assumed to handle more then 1 macro
+    int32 MacrosNum = FoundFiles.Num();
+    if (MacrosNum <= 0)
+    {
+        UE_LOG(LogTemp, Error, TEXT("UTIL::MakeZIPInDir::Failed to load files - returning"));
+        return;
+    }
+
+    FString FullZIPPath = Directory + TEXT("/ZIP.zip");
+
+    CreateZip(FoundFiles, FullZIPPath);
+
+    UE_LOG(LogTemp, Warning, TEXT("Desired Path: %s"), *FullZIPPath);
 }
