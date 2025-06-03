@@ -10,7 +10,7 @@
 
 // Forward Declared Functions
 void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
-TArray<TPair<FString, FString>> CollectFilesForZip(const FString& RootFolder);
+TArray<TPair<FString, FString>> CollectFilesForZip_UTIL(const FString& RootFolder);
 
 void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
 {
@@ -97,7 +97,7 @@ void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
     UE_LOG(LogTemp, Log, TEXT("ZipHandler::ZIP archive created successfully at %s"), *ZipPath);
 }
 
-TArray<TPair<FString, FString>> CollectFilesForZip(const FString& RootFolder)
+TArray<TPair<FString, FString>> CollectFilesForZip_UTIL(const FString& RootFolder)
 {
     TArray<TPair<FString, FString>> FileList;
 

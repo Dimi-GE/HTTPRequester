@@ -2,37 +2,13 @@ Notes:
 
 psl keep in mind that once we remove the contribution banner- we need to update the links to one time donation in support emails and Privacy digest CTA
 
-try element picker;
-https://github.com/ghostery/ghostery-extension/pull/2391
-test Safari for Keeping Up Promises project;
-
-register Amazon Prime and test;
-
-Use spotify on a regular basis;
-
-keep tracking Hulu;
-
 check the slack-related functionality in Zendesk:
 https://ghostery.slack.com/marketplace/A0221L31T4P-zendesk?utm_source=in-prod&utm_medium=inprod-btn_app_install-index-click
-
-Check reviews for positive feedback on the Ghostery UI - rework current ones to text;
-Search for testimonials from other browsers - Safari is left;
-
-and collect some while you look for the interface. they are rare but appear sometimes
-5:28
-maybe we write a content piece on how professionals use ghostery to inspire others
-
-Apple: For most part it works good, but for every YouTube window I open regardless of my previous setting, it resets ambient mode to on. Turning off Ghostery allows YouTube to remember this setting
 
 Craft responses for Russian language reviews:
 
 uBlock(AdGuard) Origin and Ghostery - for Hulu;
 Chrome(Firefox) browser for testing;
-
-1. First step - find people;
-2. Ask for Chrome - AdGurad & uBlock Lite;
-3. Ask for Firefox - uBlock Origin;
-
 
 Войтович (Минск):
 Ewa Dąmbrowska (Gdańsk):
@@ -44,7 +20,7 @@ Nauczanie się w grupie.
 Pracując z mentorem.
 Scribd
 Aleksiej Suworin - Praktyczny Kurs Leczenia Glodem1 | PDF
-Scribd is the world's largest social reading and publishing site.
+
 [9:15 AM] Dimi
 Hi Dimi, hope you are well! Can you pls improve the flow a bit here by asking for only one thing. so when we ask for review, suppress the donation message . we’re asking for too many things at the same time and might end up with none done by users
 Dimi  [10:43 AM]
