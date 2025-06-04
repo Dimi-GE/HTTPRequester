@@ -82,6 +82,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	class UButton* ZIP_BTN;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* UNZIP_BTN;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* SYNC_BTN;
 
 	UPROPERTY(meta = (BindWidget))
@@ -149,6 +152,9 @@ class UMacrosManager : public UEditorUtilityWidget
 
 	UFUNCTION()
 	void ZIPFiles_UTIL();
+
+	UFUNCTION()
+	void UNZIPFiles_UTIL();
 
 	private:
 

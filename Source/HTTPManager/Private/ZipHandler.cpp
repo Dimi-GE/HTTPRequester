@@ -12,6 +12,7 @@
 void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
 TArray<TPair<FString, FString>> CollectFilesForZip_UTIL(const FString& RootFolder);
 void CreateZip_Structured(TArray<TPair<FString, FString>> FilesStructure, const FString& ZipPath);
+void UnpackZip(const FString& PathToZip, const FString& TempDir);
 
 void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath)
 {
@@ -217,4 +218,60 @@ void CreateZip_Structured(TArray<TPair<FString, FString>> FilesStructure, const 
     mz_stream_delete(&FileStream);
 
     UE_LOG(LogTemp, Log, TEXT("\nZipHandler::ZIP archive created successfully at %s"), *ZipPath);
+}
+
+void UnpackZip(const FString& PathToZip, const FString& TempDir)
+{
+    // Step 1: Create ZipHandle
+    void* ZipHandle = mz_zip_create();
+   
+    if (mz_zip_open(ZipHandle, TCHAR_TO_UTF8(*PathToZip), MZ_OPEN_MODE_READ) != MZ_OK)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to open ZIP file at %s"), *PathToZip);
+        mz_zip_delete(&ZipHandle);
+        return;
+    }
+
+    // Step 2:Loop through entries
+    int32 EntryIndex = 0;
+    while (mz_zip_goto_entry(ZipHandle, EntryIndex++) == MZ_OK)
+    {
+        mz_zip_file* FileInfo = nullptr;
+        mz_zip_entry_get_info(ZipHandle, &FileInfo);
+        FString EntryName = UTF8_TO_TCHAR(FileInfo->filename);
+
+        FString AbsoluteDestPath = FPaths::Combine(TempDir, EntryName);
+
+        // Step 3: Handle folder creation
+        if (EntryName.EndsWith(TEXT("/")))
+        {
+            IFileManager::Get().MakeDirectory(*AbsoluteDestPath, true);
+            continue;
+        }
+
+        IFileManager::Get().MakeDirectory(*FPaths::GetPath(AbsoluteDestPath), true);
+
+        // Step 4: Open and read the entry
+        if (mz_zip_entry_read_open(ZipHandle, 0, nullptr) != MZ_OK)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Failed to open entry %s"), *EntryName);
+            continue;
+        }
+
+        TArray<uint8> Buffer;
+        Buffer.SetNumUninitialized(FileInfo->uncompressed_size);
+
+        if (mz_zip_entry_read(ZipHandle, Buffer.GetData(), Buffer.Num()) != FileInfo->uncompressed_size)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Failed to read entry %s"), *EntryName);
+            mz_zip_entry_close(ZipHandle);
+            continue;
+        }
+
+        FFileHelper::SaveArrayToFile(Buffer, *AbsoluteDestPath);
+        mz_zip_entry_close(ZipHandle);
+    }
+
+    mz_zip_close(ZipHandle);
+    mz_zip_delete(&ZipHandle);
 }

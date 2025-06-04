@@ -25,7 +25,8 @@ extern void SaveJsonArrayToFile_UTIL(const FString& JSONSubPath, const TArray<TS
 
 extern void RSSManifestInit_UTIL();
 
-void MakeZIPInDir();
+extern void MakeZIPInDir();
+extern void UnZipInDir();
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -42,6 +43,7 @@ void UMacrosManager::NativeConstruct()
     RSSInit_BTN->OnClicked.AddDynamic(this, &UMacrosManager::RSSInit);
     RSSManifestInit_BTN->OnClicked.AddDynamic(this, &UMacrosManager::RSSManifestInit);
     ZIP_BTN->OnClicked.AddDynamic(this, &UMacrosManager::ZIPFiles_UTIL);
+    UNZIP_BTN->OnClicked.AddDynamic(this, &UMacrosManager::UNZIPFiles_UTIL);
 
     this->HandleThisLifycycle();
 
@@ -628,6 +630,12 @@ void UMacrosManager::ZIPFiles_UTIL()
 {
     UE_LOG(LogTemp, Warning, TEXT("ZIPFiles_UTIL::Called."));
     MakeZIPInDir();
+}
+
+void UMacrosManager::UNZIPFiles_UTIL()
+{
+    UE_LOG(LogTemp, Warning, TEXT("UNZIPFiles_UTIL::Called."));
+    UnZipInDir();
 }
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
 // {

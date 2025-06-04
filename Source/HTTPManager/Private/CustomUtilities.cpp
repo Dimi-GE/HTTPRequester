@@ -19,6 +19,7 @@ TArray<TSharedPtr<FJsonValue>> ThrowJsonArrayFromFile_UTIL(FString JSONSubPath);
 FString OpenFolderDialog_UTIL();
 FString CalculateFileHash_UTIL(const FString& FilePath);
 FString CalculateDirectoryHash_UTIL(const TMap<FString, FString>& FileHashes);
+void UnZipInDir();
 
 // ZIP Handler Externals
 extern void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
@@ -522,4 +523,9 @@ void MakeZIPInDir()
 
 
     // UE_LOG(LogTemp, Warning, TEXT("Desired Path: %s"), *FullZIPPath);
+}
+
+void UnZipInDir()
+{
+    UE_LOG(LogTemp, Warning, TEXT("UnZipInDir::Launched."));
 }
