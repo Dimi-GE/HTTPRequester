@@ -24,6 +24,7 @@ void UnZipInDir();
 // ZIP Handler Externals
 extern void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
 extern void CreateZip_Structured(TArray<TPair<FString, FString>> FilesStructure, const FString& ZipPath);
+extern void UnpackZip(const FString& PathToZip, const FString& TempDir);
 extern TArray<TPair<FString, FString>> CollectFilesForZip_UTIL(const FString& RootFolder);
 
 // The function throws material instance dynamic - hard-coded to work M_SyncNotify so far;
@@ -528,4 +529,16 @@ void MakeZIPInDir()
 void UnZipInDir()
 {
     UE_LOG(LogTemp, Warning, TEXT("UnZipInDir::Launched."));
+
+    FString ZIPDirectory;
+
+    if(ZIPDirectory != OpenFolderDialog_UTIL())
+    {
+        return;
+    }
+    FString TargetDirectory = OpenFolderDialog_UTIL();
+
+    FString FullZipFilePAth = ZIPDirectory + TEXT("/ZIP.zip");
+
+    UnpackZip(FullZipFilePAth, TargetDirectory);
 }

@@ -224,6 +224,8 @@ void UnpackZip(const FString& PathToZip, const FString& TempDir)
 {
     // Step 1: Create ZipHandle
     void* ZipHandle = mz_zip_create();
+
+    FString FullZipPath = PathToZip;
    
     if (mz_zip_open(ZipHandle, TCHAR_TO_UTF8(*PathToZip), MZ_OPEN_MODE_READ) != MZ_OK)
     {
