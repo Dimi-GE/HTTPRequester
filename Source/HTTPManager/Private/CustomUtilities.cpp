@@ -22,6 +22,8 @@ FString CalculateDirectoryHash_UTIL(const TMap<FString, FString>& FileHashes);
 
 // ZIP Handler Externals
 extern void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
+extern void CreateZip_Structured(TArray<TPair<FString, FString>> FilesStructure, const FString& ZipPath);
+extern TArray<TPair<FString, FString>> CollectFilesForZip_UTIL(const FString& RootFolder);
 
 // The function throws material instance dynamic - hard-coded to work M_SyncNotify so far;
 UMaterialInstanceDynamic* ThrowDynamicInstance(float ScalarValue)
@@ -494,23 +496,30 @@ void MakeZIPInDir()
     FString SearchPattern = TEXT("*");
     TArray<FString> FoundFiles;
 
-    IFileManager& FileManager = IFileManager::Get();
+    int32 FilesCount = 0;
+
+    TArray<TPair<FString, FString>> FilesToZip = CollectFilesForZip_UTIL(Directory);
+
+    // IFileManager& FileManager = IFileManager::Get();
 
     // Retrieve file list
-    FileManager.FindFilesRecursive(FoundFiles, *Directory, *SearchPattern, true, false);
-
+    // FileManager.FindFilesRecursive(FoundFiles, *Directory, *SearchPattern, true, false);
 
     // Check if array is not empty - assumed to handle more then 1 macro
-    int32 MacrosNum = FoundFiles.Num();
-    if (MacrosNum <= 0)
-    {
-        UE_LOG(LogTemp, Error, TEXT("UTIL::MakeZIPInDir::Failed to load files - returning"));
-        return;
-    }
+    // int32 MacrosNum = FoundFiles.Num();
+    // if (MacrosNum <= 0)
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("UTIL::MakeZIPInDir::Failed to load files - returning"));
+    //     return;
+    // }
 
+
+    // Create ZIP in the desired path
     FString FullZIPPath = Directory + TEXT("/ZIP.zip");
 
-    CreateZip(FoundFiles, FullZIPPath);
+    // CreateZip(FoundFiles, FullZIPPath);
+    CreateZip_Structured(FilesToZip, FullZIPPath);
 
-    UE_LOG(LogTemp, Warning, TEXT("Desired Path: %s"), *FullZIPPath);
+
+    // UE_LOG(LogTemp, Warning, TEXT("Desired Path: %s"), *FullZIPPath);
 }
