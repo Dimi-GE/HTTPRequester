@@ -530,13 +530,8 @@ void UnZipInDir()
 {
     UE_LOG(LogTemp, Warning, TEXT("UnZipInDir::Launched."));
 
-    FString ZIPDirectory;
-
-    if(ZIPDirectory != OpenFolderDialog_UTIL())
-    {
-        return;
-    }
-    FString TargetDirectory = OpenFolderDialog_UTIL();
+    FString ZIPDirectory = OpenFolderDialog_UTIL();
+    FString TargetDirectory = OpenFolderDialog_UTIL() + TEXT("/");
 
     FString FullZipFilePAth = ZIPDirectory + TEXT("/ZIP.zip");
 
