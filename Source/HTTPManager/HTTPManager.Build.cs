@@ -13,6 +13,7 @@ public class HTTPManager : ModuleRules
 		"Core",
 		"CoreUObject",
 		"Engine",
+		"UnrealEd",
 		"InputCore",
 		"Blutility",
 		"UMG",

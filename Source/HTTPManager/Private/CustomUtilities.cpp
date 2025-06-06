@@ -3,6 +3,7 @@
 // Engine
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
+#include "Engine/Engine.h"
 // File management
 #include "HAL/FileManager.h"
 #include "IDesktopPlatform.h"
@@ -20,6 +21,8 @@ FString OpenFolderDialog_UTIL();
 FString CalculateFileHash_UTIL(const FString& FilePath);
 FString CalculateDirectoryHash_UTIL(const TMap<FString, FString>& FileHashes);
 void UnZipInDir();
+void ThrowTimer_UTIL();
+void StopTimer_UTIL(FTimerHandle& RuntimeHandle, UWorld* WorldContextObject);
 
 // ZIP Handler Externals
 extern void CreateZip(const TArray<FString>& FilePaths, const FString& ZipPath);
@@ -536,4 +539,79 @@ void UnZipInDir()
     FString FullZipFilePAth = ZIPDirectory + TEXT("/ZIP.zip");
 
     UnpackZip(FullZipFilePAth, TargetDirectory);
+}
+
+void ThrowTimer_UTIL()
+{
+    UWorld* WorldContext = nullptr;
+    FTimerHandle RuntimeHandle;
+    int32 Counter = 0;
+
+    // Get correct WorldContext object --> //
+	if (GEngine)
+	{
+		// Prefer runtime world
+		for (const FWorldContext& Context : GEngine->GetWorldContexts())
+		{
+			if (Context.WorldType == EWorldType::Game || Context.WorldType == EWorldType::PIE)
+			{
+				WorldContext = Context.World();
+			}
+		}
+	}
+
+    #if WITH_EDITOR
+        if (GEditor)
+        {
+            WorldContext = GEditor->GetEditorWorldContext().World();
+        }
+    #endif
+    // Get correct WorldContext object <-- //
+
+    // Run the respective timer --> //
+    if (WorldContext)
+    {
+        WorldContext->GetTimerManager().SetTimer(RuntimeHandle, [WorldContext, &Counter, &RuntimeHandle]()
+        {
+            if (Counter < 5)
+            {
+                Counter++;
+                UE_LOG(LogTemp, Warning, TEXT("TimerSeconds: %d."), Counter);
+            }
+            else
+            {
+                StopTimer_UTIL(RuntimeHandle, WorldContext);
+                UE_LOG(LogTemp, Warning, TEXT("TimerSeconds: %d."), Counter);
+            }
+
+        }, 1, true);
+    }
+    else
+    {
+        bool bIsGameWorld = WorldContext->IsGameWorld();
+        UE_LOG(LogTemp, Error, TEXT("Failed to run timer - context %s."), bIsGameWorld ? TEXT("true") : TEXT("false"));
+    }
+    // Run the respective timer <-- //
+
+    UE_LOG(LogTemp, Warning, TEXT("WorldName: %s."), *WorldContext->GetName());
+}
+
+void StopTimer_UTIL(FTimerHandle& RuntimeHandle, UWorld* WorldContextObject)
+{
+	// Stop runtime timer
+	// if (UWorld* World = GEngine ? GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull) : nullptr)
+	// {
+	// 	World->GetTimerManager().ClearTimer(*RuntimeHandle);
+	// }
+
+    if (WorldContextObject)
+    {
+        WorldContextObject->GetTimerManager().ClearTimer(RuntimeHandle);
+        UE_LOG(LogTemp, Warning, TEXT("WorldName: %s."), *WorldContextObject->GetName());
+        UE_LOG(LogTemp, Warning, TEXT("Trying to stop timer: %s"), *RuntimeHandle.ToString());
+    }
+    else
+    {
+         UE_LOG(LogTemp, Error, TEXT("Failed to stop timer."));
+    }
 }

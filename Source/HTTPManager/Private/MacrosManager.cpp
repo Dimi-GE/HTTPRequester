@@ -27,6 +27,7 @@ extern void RSSManifestInit_UTIL();
 
 extern void MakeZIPInDir();
 extern void UnZipInDir();
+extern void ThrowTimer_UTIL();
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -635,7 +636,9 @@ void UMacrosManager::ZIPFiles_UTIL()
 void UMacrosManager::UNZIPFiles_UTIL()
 {
     UE_LOG(LogTemp, Warning, TEXT("UNZIPFiles_UTIL::Called."));
-    UnZipInDir();
+    // UnZipInDir();
+
+    ThrowTimer_UTIL();
 }
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
 // {
