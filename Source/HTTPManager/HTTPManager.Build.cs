@@ -48,10 +48,8 @@ public class HTTPManager : ModuleRules
 
         // Definitions for minizip-ng
         PublicDefinitions.Add("MZ_COMPAT"); // Compatibility mode
-        PublicDefinitions.Add("MZ_ZIP_NO_CRYPTO"); // Disable encryption
         PublicDefinitions.Add("MZ_ZLIB"); // Use Unreal's zlib
         PublicDefinitions.Add("ZLIB_WINAPI"); // zlib compatibility
-		PublicDefinitions.Add("MZ_ZIP_NO_COMPRESSION");
 
 		// Windows-specific fix for C runtime warnings
 		if (Target.Platform == UnrealTargetPlatform.Win64)

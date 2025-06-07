@@ -182,11 +182,11 @@ void CreateZip_Structured(TArray<TPair<FString, FString>> FilesStructure, const 
 
         mz_zip_file FileMeta = {};
         FileMeta.version_madeby = MZ_VERSION_MADEBY;
-        FileMeta.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
+        // FileMeta.compression_method = MZ_COMPRESS_METHOD_DEFLATE; <-- Can be defined rather in the function or the FileMeta
         FileMeta.filename = EntryNameUTF8.Get();
         FileMeta.modified_date = time(nullptr); // or use UE’s FDateTime if needed
 
-        if (mz_zip_entry_write_open(ZipHandle, &FileMeta, MZ_COMPRESS_METHOD_STORE, 0, nullptr) != MZ_OK)
+        if (mz_zip_entry_write_open(ZipHandle, &FileMeta, MZ_COMPRESS_METHOD_DEFLATE, 0, nullptr) != MZ_OK)
         {
             UE_LOG(LogTemp, Warning, TEXT("ZipHandler::Failed to open zip entry for %s - skipping..."), *FullPath);
             mz_stream_close(FileEntryStream);
