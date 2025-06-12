@@ -52,11 +52,11 @@ public class HTTPManager : ModuleRules
         PublicDefinitions.Add("ZLIB_WINAPI"); // zlib compatibility
 
 		// Windows-specific fix for C runtime warnings
-		if (Target.Platform == UnrealTargetPlatform.Win64)
-		{
-			PublicDefinitions.Add("_CRT_SECURE_NO_WARNINGS");
-			PublicDefinitions.Add("WIN32");
-		}
+		// if (Target.Platform == UnrealTargetPlatform.Win64)
+		// {
+		// 	PublicDefinitions.Add("_CRT_SECURE_NO_WARNINGS");
+		// 	PublicDefinitions.Add("WIN32");
+		// }
 
 
 		// GPT:
