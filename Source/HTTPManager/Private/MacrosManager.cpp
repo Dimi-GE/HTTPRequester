@@ -33,7 +33,21 @@ extern void ThrowTimer_UTIL();
 extern FString CreateRSSSyncTempFolder();
 extern bool CreateManifest();
 extern bool EnsureLocalManifestExists();
-TArray<FString> CompareManifestsAndFindDifferences(bool bExecuteChanges, const FString& TempFolder);
+extern TArray<FString> CompareManifestsAndFindDifferences(bool bExecuteChanges, const FString& TempFolder);
+extern bool ApplyFileChanges(const FString& TempFolder, bool bUpdateLocal = true);
+extern bool UpdateManifestsAfterChanges(const FString& TempFolder);
+extern bool PackUpdatedBranchToZip(const FString& TempFolder);
+extern void DownloadBranchFromGitHub(const FString& RepoOwner, const FString& RepoName, 
+                             const FString& BranchName, const FString& AccessToken,
+                             const FString& TempFolder, TFunction<void(bool)> OnDownloadComplete);
+extern void DownloadBranchWithValidation(const FString& RepoOwner, const FString& RepoName, 
+                                 const FString& BranchName, const FString& AccessToken,
+                                 const FString& TempFolder, TFunction<void(bool, FString)> OnComplete);
+extern void UploadUpdatedBranchWithValidation(const FString& RepoOwner, const FString& RepoName,
+                                      const FString& BranchName, const FString& AccessToken,
+                                      const FString& TempFolder, const FString& CommitMessage,
+                                      TFunction<void(bool, FString)> OnComplete);
+
 
 void UMacrosManager::NativePreConstruct()
 {
@@ -85,14 +99,14 @@ void UMacrosManager::HandleThisLifycycle()
     TArray<TSharedPtr<FJsonValue>> JsonArray = ThrowJsonArrayFromFile_UTIL(RSSInitSubPath);
     if (JsonArray.IsEmpty())
     {
-        UE_LOG(LogTemp, Error, TEXT("HandleThisLifycycle::JsonArray is empty - returning."));
+        UE_LOG(LogTemp, Error, TEXT("HandleThisLifycle::JsonArray is empty - returning."));
         return;
     }
     
     TSharedPtr<FJsonObject> RSSMacrosManager = ThrowRSSInitModule_UTIL(JsonArray, RSSInitModule, RSSInitField);
     if (RSSMacrosManager == nullptr)
     {
-        UE_LOG(LogTemp, Error, TEXT("HandleThisLifycycle::MacrosManager is nullptr - returning."));
+        UE_LOG(LogTemp, Error, TEXT("HandleThisLifycle::MacrosManager is nullptr - returning."));
         return;
     }
 
@@ -663,64 +677,133 @@ void UMacrosManager::TestWrapperFunction()
     //     UE_LOG(LogTemp, Error, TEXT("TestWrapperFunction::Failed to create remote manifest."));
     // }
 
-    bool bExecute = false;
+    // bool bExecute = false; // Set to true to execute changes, false to just compare manifests
 
+    // FString TempFolder = TEXT("D:/[DGE]/Projects/HTTPRequester/Temp/RSSSync/");
+
+    // TArray<FString> Diffs = CompareManifestsAndFindDifferences(bExecute, TempFolder);
+
+    // bool bUpdateLocal = false; // Set to true to update local files, false to just apply changes
+    // Create proper temp folder for download
     FString TempFolder = TEXT("D:/[DGE]/Projects/HTTPRequester/Temp/RSSSync/");
+    if (TempFolder.IsEmpty())
+    {
+        UE_LOG(LogTemp, Error, TEXT("TestWrapperFunction::Failed to create temp folder"));
+        return;
+    }
 
-    TArray<FString> Diffs = CompareManifestsAndFindDifferences(bExecute, TempFolder);
+    bool bSuccess = PackUpdatedBranchToZip(TempFolder);
+    // if(bSuccess)
+    // {
+    //     UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::Manifests updated successfully."));
+    // }
+    // else
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("TestWrapperFunction::Failed to update manifests."));
+    // }
+    // // Format: https://api.github.com/repos/{owner}/{repo}/zipball/{branch}    TFunction<void(bool)> OnDownloadComplete;    // Enhanced callback with error message support for private repos
+    // TFunction<void(bool, FString)> OnDownloadCompleteEnhanced = [this, TempFolder](bool bSuccess, FString ErrorMessage)
+    // {
+    //     if (bSuccess)
+    //     {
+    //         UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::Download completed successfully to %s"), *TempFolder);
+    //         // You can call ApplyFileChanges here if needed
+    //         // bool bApplySuccess = ApplyFileChanges(TempFolder);
+    //         // if (bApplySuccess)
+    //         // {
+    //         //     UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::File changes applied successfully."));
+    //         // }
+    //         // else
+    //         // {
+    //         //     UE_LOG(LogTemp, Error, TEXT("TestWrapperFunction::Failed to apply file changes."));
+    //         // }
+    //     }
+    //     else
+    //     {
+    //         UE_LOG(LogTemp, Error, TEXT("TestWrapperFunction::Download failed: %s"), *ErrorMessage);
+    //     }
+    // };
+    
+    // FString RepoOwner = TEXT("Dimi-GE");
+    // FString RepoName = TEXT("EasyGitHub");
+    // FString BranchName = TEXT("main");
+    // FString AccessToken = TEXT("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"); // Expires in 1 week, replace with your own token
+
+    // UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::Using ENHANCED download with PRIVATE REPO support"));
+    
+    // // Use the enhanced function that validates token first (essential for private repos)
+    // DownloadBranchWithValidation(RepoOwner, RepoName, BranchName, AccessToken,
+    //                             TempFolder, OnDownloadCompleteEnhanced);
+                             
+    // UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::Enhanced download started - Editor should remain responsive"));
+
+    // bool bSuccess = ApplyFileChanges(TempFolder, bUpdateLocal);
+    // if( bSuccess)
+    // {
+    //     UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::File changes applied successfully."));
+    // }
+    // else
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("TestWrapperFunction::Failed to apply file changes."));
+    // }
+
 
 
 }
 
-// void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
-// {
-//     IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+/**
+ * Test function for Enhanced Upload with Write Permission Validation
+ * 
+ * This function demonstrates how to use the enhanced upload function that validates
+ * write permissions before attempting to upload to GitHub repositories.
+ */
+void UMacrosManager::TestEnhancedUploadFunction()
+{
+    UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Starting enhanced upload test with permission validation"));
+    
+    // Create proper temp folder for upload
+    FString TempFolder = TEXT("D:/[DGE]/Projects/HTTPRequester/Temp/RSSSync/");
+    if (TempFolder.IsEmpty())
+    {
+        UE_LOG(LogTemp, Error, TEXT("TestEnhancedUpload::Failed to create temp folder"));
+        return;
+    }
+    
+    // Enhanced callback with detailed error message support for upload operations
+    TFunction<void(bool, FString)> OnUploadCompleteEnhanced = [this, TempFolder](bool bSuccess, FString ErrorMessage)
+    {
+        if (bSuccess)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Upload completed successfully to repository"));
+            // You could trigger additional actions here, like refreshing local manifests
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("TestEnhancedUpload::Upload failed: %s"), *ErrorMessage);
+            
+            // Provide user-friendly guidance based on error type
+            if (ErrorMessage.Contains(TEXT("lacks push")))
+            {
+                UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::SOLUTION: Generate a new token with 'repo' scope for private repos"));
+            }
+            else if (ErrorMessage.Contains(TEXT("401")) || ErrorMessage.Contains(TEXT("Invalid")))
+            {
+                UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::SOLUTION: Check if your access token has expired"));
+            }
+        }
+    };
+    
+    FString RepoOwner = TEXT("Dimi-GE");
+    FString RepoName = TEXT("EasyGitHub");
+    FString BranchName = TEXT("main");
+    FString AccessToken = TEXT("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"); // Expires in 1 week, replace with your own token
+    FString CommitMessage = TEXT("Update files via Unreal Engine RSS Sync system");
 
-//     if (!PlatformFile.DirectoryExists(*LocalPath))
-//     {
-//         UE_LOG(LogTemp, Warning, TEXT("Local path does not exist: %s"), *LocalPath);
-//         return;
-//     }
-
-//     // Scan directory
-//     OutFiles.Empty();
-//     PlatformFile.FindFiles(OutFiles, *LocalPath, nullptr); // nullptr means "all file types"
-
-//     UE_LOG(LogTemp, Log, TEXT("Found %d local files."), OutFiles.Num());
-// }
-
-// void UMacrosManager::CompareRepoToLocal(const FString &LocalPath, const TMap<FString, int64>& RemoteFiles)
-// {
-//     IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-
-//     if (!PlatformFile.DirectoryExists(*LocalPath))
-//     {
-//         UE_LOG(LogTemp, Warning, TEXT("Local path does not exist: %s"), *LocalPath);
-//         CustomLog_FText_UTIL("CompareRepoToLocal", (TEXT("Local path does not exist: ") + LocalPath));
-//         return;
-//     }
-
-//     for (const TPair<FString, int64>& RemoteFile : RemoteFiles)
-//     {
-//         FString LocalFilePath = LocalPath + RemoteFile.Key;
-
-//         if (PlatformFile.FileExists(*LocalFilePath))
-//         {
-//             int64 LocalFileSize = PlatformFile.FileSize(*LocalFilePath);
-
-//             if (LocalFileSize == RemoteFile.Value)
-//             {
-//                 UE_LOG(LogTemp, Log, TEXT("✅ File exists & size matches: %s"), *RemoteFile.Key);
-//             }
-//             else
-//             {
-//                 UE_LOG(LogTemp, Warning, TEXT("⚠️ File exists but size differs (local: %lld, remote: %lld): %s"), 
-//                     LocalFileSize, RemoteFile.Value, *RemoteFile.Key);
-//             }
-//         }
-//         else
-//         {
-//             UE_LOG(LogTemp, Warning, TEXT("⬇️ File missing locally, needs download: %s"), *RemoteFile.Key);
-//         }
-//     }
-// }
+    UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Using ENHANCED upload with WRITE PERMISSION validation"));
+    
+    // Use the enhanced function that validates write permissions first
+    UploadUpdatedBranchWithValidation(RepoOwner, RepoName, BranchName, AccessToken,
+                                     TempFolder, CommitMessage, OnUploadCompleteEnhanced);
+                             
+    UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Enhanced upload validation started - Editor should remain responsive"));
+}

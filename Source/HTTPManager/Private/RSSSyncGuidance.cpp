@@ -36,7 +36,7 @@ extern FString OpenFolderDialog_UTIL();
 
 /**
  * Step 1: Create Temporary Folder for RSS Synchronization
- * NOTE: Passed the test.
+ * PRODUCTION NOTE: Passed the test.
  * Creates a temporary folder named 'RSSSync' where downloaded ZIP files will be 
  * stored and unpacked. This ensures clean separation between sync operations.
  * 
@@ -73,7 +73,8 @@ FString CreateRSSSyncTempFolder()
 
 /**
  * Step 2: Download Branch from GitHub
- * 
+ * PRODUCTION NOTE: Failed the test.
+ * PRODUCTION NOTE: DEPRECATED - use DownloadBranchWithValidation(. . .) instead.
  * Downloads a specific branch from GitHub repository as a ZIP file.
  * Uses GitHub API to fetch the branch archive and saves it to the RSSSync folder.
  * 
@@ -95,8 +96,8 @@ void DownloadBranchFromGitHub(const FString& RepoOwner, const FString& RepoName,
     // Format: https://api.github.com/repos/{owner}/{repo}/zipball/{branch}
     FString DownloadURL = FString::Printf(TEXT("https://api.github.com/repos/%s/%s/zipball/%s"), 
                                          *RepoOwner, *RepoName, *BranchName);
-    
-    UE_LOG(LogTemp, Log, TEXT("RSSSync: Downloading from %s"), *DownloadURL);
+      UE_LOG(LogTemp, Log, TEXT("RSSSync: Downloading from %s"), *DownloadURL);
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: Starting download request for %s/%s:%s"), *RepoOwner, *RepoName, *BranchName);
     
     // Create HTTP request
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
@@ -112,14 +113,23 @@ void DownloadBranchFromGitHub(const FString& RepoOwner, const FString& RepoName,
         Request->SetHeader(TEXT("Authorization"), AuthHeader);
         UE_LOG(LogTemp, Log, TEXT("RSSSync: Using access token for authentication"));
     }
-    
-    // Set user agent (GitHub requires this)
+      // Set user agent (GitHub requires this)
     Request->SetHeader(TEXT("User-Agent"), TEXT("UnrealEngine-RSSSync/1.0"));
+      // Set timeout to prevent hanging (30 seconds)
+    Request->SetTimeout(30.0f);
     
-    // Bind response handler
-    Request->OnProcessRequestComplete().BindLambda([TempFolder, OnDownloadComplete]
+    // Add progress delegate for monitoring
+    Request->OnRequestProgress().BindLambda([RepoOwner, RepoName](FHttpRequestPtr Request, int32 BytesSent, int32 BytesReceived)
+    {
+        UE_LOG(LogTemp, Log, TEXT("RSSSync: Download progress for %s/%s - Received: %d bytes"), *RepoOwner, *RepoName, BytesReceived);
+    });
+    
+      // Bind response handler
+    Request->OnProcessRequestComplete().BindLambda([TempFolder, OnDownloadComplete, RepoOwner, RepoName, BranchName]
         (FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
     {
+        UE_LOG(LogTemp, Warning, TEXT("RSSSync: Download request completed for %s/%s:%s"), *RepoOwner, *RepoName, *BranchName);
+        
         bool bDownloadSuccess = false;
         
         if (bWasSuccessful && Response.IsValid())
@@ -166,9 +176,64 @@ void DownloadBranchFromGitHub(const FString& RepoOwner, const FString& RepoName,
         // Call completion callback
         OnDownloadComplete(bDownloadSuccess);
     });
+      // Start the download
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: ProcessRequest() called - Request should be non-blocking"));
+    if (!Request->ProcessRequest())
+    {
+        UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to start HTTP request"));
+        OnDownloadComplete(false);
+        return;
+    }
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: HTTP request started successfully, function returning immediately"));
+}
+
+/**
+ * Step 2.5: Enhanced Download Function with Token Validation
+ * PRODUCTION NOTE: Passed the test.
+ * This function first validates the token permissions, then proceeds with download.
+ * Essential for private repositories.
+ */
+
+ // Forward declaration of validation function
+void ValidateGitHubTokenAccess(const FString& RepoOwner, const FString& RepoName, 
+                               const FString& AccessToken, TFunction<void(bool, FString)> OnValidationComplete);
+
+void DownloadBranchWithValidation(const FString& RepoOwner, const FString& RepoName, 
+                                 const FString& BranchName, const FString& AccessToken,
+                                 const FString& TempFolder, TFunction<void(bool, FString)> OnComplete)
+{
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: Starting validation for %s/%s (Private repo support)"), *RepoOwner, *RepoName);
     
-    // Start the download
-    Request->ProcessRequest();
+    // First validate token access
+    ValidateGitHubTokenAccess(RepoOwner, RepoName, AccessToken, 
+        [RepoOwner, RepoName, BranchName, AccessToken, TempFolder, OnComplete]
+        (bool bHasAccess, FString ErrorMessage)
+        {
+            if (bHasAccess)
+            {
+                UE_LOG(LogTemp, Log, TEXT("RSSSync: Token validated successfully, proceeding with download"));
+                
+                // Proceed with download
+                DownloadBranchFromGitHub(RepoOwner, RepoName, BranchName, AccessToken, TempFolder,
+                    [OnComplete](bool bDownloadSuccess)
+                    {
+                        if (bDownloadSuccess)
+                        {
+                            OnComplete(true, TEXT("Download completed successfully"));
+                        }
+                        else
+                        {
+                            OnComplete(false, TEXT("Download failed"));
+                        }
+                    });
+            }
+            else
+            {
+                FString FullError = FString::Printf(TEXT("Token validation failed: %s"), *ErrorMessage);
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *FullError);
+                OnComplete(false, FullError);
+            }
+        });
 }
 
 /**
@@ -328,10 +393,9 @@ bool CreateManifest()
 /**
  * Step 5: Ensure Local Manifest Exists
  * NOTE: Failed the test.
+ * PRODUCTION NOTE: DEPRECATED - Use CreateManifest instead.
  * Checks if LocalRSSManifest.json exists in the RSS folder. If not, creates it
  * using the existing RSSManifestInit_UTIL function.
- * 
- * PRODUCTION NOTE: DEPRECATED - Use CreateManifest instead.
  * 
  * @return bool - Success status (true if manifest exists or was created successfully)
  */
@@ -376,7 +440,7 @@ bool EnsureLocalManifestExists()
 
 /**
  * Step 6: Compare Manifests and Identify Differences
- * 
+ * PRODUCTION NOTE: Passed the test.
  * Compares LocalRSSManifest and RemoteRSSManifest files by their hashes.
  * Identifies files that need to be added, updated, or removed based on timestamp priority.
  * 
@@ -557,7 +621,7 @@ TArray<FString> CompareManifestsAndFindDifferences(bool bExecuteChanges, const F
 
 /**
  * Helper Function: Save Differences to JSON File
- * 
+ * PRODUCTION NOTE: Passed the test.
  * Saves the differences analysis to a structured JSON file for review.
  * This allows users to see what changes will be made before executing them.
  * 
@@ -604,7 +668,7 @@ void SaveDifferencesToFile(const TArray<FString>& Differences, const FString& Te
 
 /**
  * Step 7: Apply File Changes Based on Differences
- * 
+ * PRODUCTION NOTE: Passed the test - reuired paths adjustments.
  * Reads the RSSDifferences.json file and performs the actual file operations
  * (add, update, remove) for both local and remote repositories.
  * 
@@ -646,8 +710,8 @@ bool ApplyFileChanges(const FString& TempFolder, bool bUpdateLocal = true)
     int32 SuccessCount = 0;
     int32 FailureCount = 0;
     
-    FString SourcePath = bUpdateLocal ? TempFolder + TEXT("extracted/") : FPaths::ProjectDir();
-    FString DestinationPath = bUpdateLocal ? FPaths::ProjectDir() : TempFolder + TEXT("updated/");
+    FString SourcePath = bUpdateLocal ? TempFolder : FPaths::ProjectDir();
+    FString DestinationPath = bUpdateLocal ? FPaths::ProjectDir() : TempFolder;
     
     // Create destination directory if updating remote
     if (!bUpdateLocal)
@@ -682,6 +746,7 @@ bool ApplyFileChanges(const FString& TempFolder, bool bUpdateLocal = true)
             {
                 FailureCount++;
                 UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to %s %s"), *Action.ToLower(), *FilePath);
+                UE_LOG(LogTemp, Warning, TEXT("RSSSync: Source file may not exist: %s"), *SourceFilePath);
             }
         }
         else if (Action == TEXT("REMOVE"))
@@ -710,7 +775,7 @@ bool ApplyFileChanges(const FString& TempFolder, bool bUpdateLocal = true)
 
 /**
  * Step 8: Update Both Manifests After Changes
- * 
+ * PRODUCTION NOTE: Passed the test - paths adjustments for CreateManifest() are required. 
  * Regenerates both local and remote manifests to reflect the current state
  * after synchronization. This ensures the manifests stay in sync with actual files.
  * 
@@ -726,14 +791,14 @@ bool UpdateManifestsAfterChanges(const FString& TempFolder)
     try
     {
         // Remove old local manifest
-        FString LocalManifestPath = FPaths::ProjectDir() + TEXT("RSS/LocalRSSManifest.json");
+        FString LocalManifestPath = FPaths::ProjectDir() + TEXT("RSSManifest.json");
         if (FPaths::FileExists(LocalManifestPath))
         {
             IFileManager::Get().Delete(*LocalManifestPath);
         }
         
         // Create new local manifest using existing utility
-        RSSManifestInit_UTIL();
+        CreateManifest();
         
         bLocalSuccess = FPaths::FileExists(LocalManifestPath);
         UE_LOG(LogTemp, Log, TEXT("RSSSync: Local manifest update %s"), 
@@ -745,13 +810,13 @@ bool UpdateManifestsAfterChanges(const FString& TempFolder)
     }
     
     // Update remote manifest if we have updated files
-    FString UpdatedPath = TempFolder + TEXT("updated/");
+    FString UpdatedPath = TempFolder;
     if (IFileManager::Get().DirectoryExists(*UpdatedPath))
     {
         try
         {
             // Remove old remote manifest
-            FString RemoteManifestPath = TempFolder + TEXT("RemoteRSSManifest.json");
+            FString RemoteManifestPath = TempFolder + TEXT("RSSManifest.json");
             if (FPaths::FileExists(RemoteManifestPath))
             {
                 IFileManager::Get().Delete(*RemoteManifestPath);
@@ -777,7 +842,7 @@ bool UpdateManifestsAfterChanges(const FString& TempFolder)
 
 /**
  * Step 9: Pack Updated Branch into ZIP File
- * 
+ * PRODUCTION NOTE: Passed the test.
  * Creates a ZIP file from the updated branch files, ready for upload to GitHub.
  * Uses the existing ZIP creation utilities.
  * 
@@ -786,7 +851,7 @@ bool UpdateManifestsAfterChanges(const FString& TempFolder)
  */
 bool PackUpdatedBranchToZip(const FString& TempFolder)
 {
-    FString UpdatedPath = TempFolder + TEXT("updated/");
+    FString UpdatedPath = TempFolder;
     FString ZipOutputPath = TempFolder + TEXT("updated_branch.zip");
     
     if (!IFileManager::Get().DirectoryExists(*UpdatedPath))
@@ -885,8 +950,7 @@ void UploadUpdatedBranchToGitHub(const FString& RepoOwner, const FString& RepoNa
     // 6. Update the branch reference to point to the new commit
     
     UE_LOG(LogTemp, Log, TEXT("RSSSync: Starting GitHub upload process..."));
-    
-    // Forward declaring the helper function to get branch reference
+      // Forward declaring the helper function to get branch reference
     void GetBranchReference(const FString& RepoOwner, const FString& RepoName,
                        const FString& BranchName, const FString& AccessToken,
                        TFunction<void(bool, FString)> OnComplete);
@@ -896,6 +960,17 @@ void UploadUpdatedBranchToGitHub(const FString& RepoOwner, const FString& RepoNa
                                    const FString& BranchName, const FString& AccessToken,
                                    const FString& TempFolder, const FString& CommitMessage,
                                    const FString& ParentSHA, TFunction<void(bool)> OnComplete);
+                                   
+    // Forward declaring helper functions for commit creation
+    void CreateSimpleTestCommit(const FString& RepoOwner, const FString& RepoName,
+                               const FString& BranchName, const FString& AccessToken,
+                               const FString& CommitMessage, const FString& ParentSHA,
+                               TFunction<void(bool)> OnComplete);
+                               
+    void CreateCommitWithTreeSHA(const FString& RepoOwner, const FString& RepoName,
+                                const FString& AccessToken, const FString& CommitMessage,
+                                const FString& TreeSHA, const FString& ParentSHA,
+                                TFunction<void(bool)> OnComplete);
 
     // Step 1: Get current branch reference
     GetBranchReference(RepoOwner, RepoName, BranchName, AccessToken,
@@ -941,8 +1016,7 @@ void GetBranchReference(const FString& RepoOwner, const FString& RepoName,
             TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
             
             if (FJsonSerializer::Deserialize(Reader, JsonObject))
-            {
-                TSharedPtr<FJsonObject> ObjectField = JsonObject->GetObjectField(TEXT("object"));
+            {                TSharedPtr<FJsonObject> ObjectField = JsonObject->GetObjectField(TEXT("object"));
                 if (ObjectField.IsValid())
                 {
                     FString SHA = ObjectField->GetStringField(TEXT("sha"));
@@ -956,43 +1030,150 @@ void GetBranchReference(const FString& RepoOwner, const FString& RepoName,
         UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to get branch reference"));
         OnComplete(false, FString());
     });
-    
+
     Request->ProcessRequest();
 }
 
 /**
  * Helper Function: Upload Files and Create Commit
  * 
- * This is a simplified version - in reality, you'd need to:
- * 1. Read each file from the ZIP
+ * This is a simplified version - in reality, you'd need to: * 1. Read each file from the ZIP
  * 2. Create GitHub blobs for each file
- * 3. Create a new tree with all the blobs
- * 4. Create a commit pointing to the tree
+ * 3. Create a new tree object with all blobs
+ * 4. Create a commit object pointing to the tree
  * 5. Update the branch reference
  * 
  * For brevity, this shows the general structure.
  */
+
+// Forward declaration of helper function to create a simple test commit
+void CreateSimpleTestCommit(const FString& RepoOwner, const FString& RepoName,
+                           const FString& BranchName, const FString& AccessToken,
+                           const FString& CommitMessage, const FString& ParentSHA,
+                           TFunction<void(bool)> OnComplete);
+
 void UploadFilesAndCreateCommit(const FString& RepoOwner, const FString& RepoName,
                                const FString& BranchName, const FString& AccessToken,
                                const FString& TempFolder, const FString& CommitMessage,
                                const FString& ParentSHA, TFunction<void(bool)> OnComplete)
 {
-    // This is a complex multi-step process that would require:
-    // - Extracting files from ZIP
-    // - Creating blob objects for each file via GitHub API
-    // - Creating a tree object with all blobs
-    // - Creating a commit object
-    // - Updating the branch reference
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: UploadFilesAndCreateCommit - Current implementation is incomplete"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: This function requires full implementation of:"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: 1. Extract files from ZIP"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: 2. Create blob objects for each file"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: 3. Create tree object with all blobs"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: 4. Create commit with valid tree SHA"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: 5. Update branch reference"));
     
-    // For demonstration, here's the structure for creating a commit:
+    // For now, create a simple placeholder commit to test the basic structure
+    // In a real implementation, you would need to:
+    // - Extract files from the ZIP in TempFolder
+    // - Create blob objects for each file via POST to /repos/{owner}/{repo}/git/blobs
+    // - Collect all blob SHAs and create a tree via POST to /repos/{owner}/{repo}/git/trees
+    // - Use the tree SHA to create the commit
+    
+    // Let's create a minimal test commit first to validate the flow
+    CreateSimpleTestCommit(RepoOwner, RepoName, BranchName, AccessToken, CommitMessage, ParentSHA, OnComplete);
+}
+
+/**
+ * Helper Function: Create a Simple Test Commit
+ * 
+ * This creates a minimal commit for testing purposes. In a real implementation,
+ * you would replace this with the full file upload workflow.
+ */
+// Forward declaration of helper function to create commit with valid tree SHA
+void CreateCommitWithTreeSHA(const FString& RepoOwner, const FString& RepoName,
+                            const FString& AccessToken, const FString& CommitMessage,
+                            const FString& TreeSHA, const FString& ParentSHA,
+                            TFunction<void(bool)> OnComplete);
+
+void CreateSimpleTestCommit(const FString& RepoOwner, const FString& RepoName,
+                           const FString& BranchName, const FString& AccessToken,
+                           const FString& CommitMessage, const FString& ParentSHA,
+                           TFunction<void(bool)> OnComplete)
+{
+    UE_LOG(LogTemp, Log, TEXT("RSSSync: Creating simple test commit (no file changes)"));
+    
+    // First, get the current tree SHA from the parent commit
+    FString ParentCommitURL = FString::Printf(TEXT("https://api.github.com/repos/%s/%s/git/commits/%s"),
+                                             *RepoOwner, *RepoName, *ParentSHA);
+    
+    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> GetTreeRequest = FHttpModule::Get().CreateRequest();
+    GetTreeRequest->SetURL(ParentCommitURL);
+    GetTreeRequest->SetVerb(TEXT("GET"));
+    GetTreeRequest->SetHeader(TEXT("Authorization"), FString::Printf(TEXT("token %s"), *AccessToken));
+    GetTreeRequest->SetHeader(TEXT("User-Agent"), TEXT("UnrealEngine-RSSSync/1.0"));
+    
+    GetTreeRequest->OnProcessRequestComplete().BindLambda([RepoOwner, RepoName, BranchName, AccessToken, CommitMessage, ParentSHA, OnComplete]
+        (FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+    {
+        if (bWasSuccessful && Response.IsValid() && Response->GetResponseCode() == 200)
+        {
+            // Parse the response to get the tree SHA
+            FString ResponseString = Response->GetContentAsString();
+            TSharedPtr<FJsonObject> JsonObject;
+            TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
+            
+            if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+            {
+                TSharedPtr<FJsonObject> TreeObject = JsonObject->GetObjectField(TEXT("tree"));
+                if (TreeObject.IsValid())
+                {
+                    FString TreeSHA = TreeObject->GetStringField(TEXT("sha"));
+                    UE_LOG(LogTemp, Log, TEXT("RSSSync: Got parent tree SHA: %s"), *TreeSHA);
+                    
+                    // Now create the commit using the existing tree (no file changes)
+                    CreateCommitWithTreeSHA(RepoOwner, RepoName, AccessToken, CommitMessage, TreeSHA, ParentSHA, OnComplete);
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to parse tree object from parent commit"));
+                    OnComplete(false);
+                }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to parse parent commit response"));
+                OnComplete(false);
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to get parent commit info"));
+            if (Response.IsValid())
+            {
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: Response code: %d"), Response->GetResponseCode());
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: Response: %s"), *Response->GetContentAsString());
+            }
+            OnComplete(false);
+        }
+    });
+    
+    if (!GetTreeRequest->ProcessRequest())
+    {
+        UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to start parent commit request"));
+        OnComplete(false);
+    }
+}
+
+/**
+ * Helper Function: Create Commit with Valid Tree SHA
+ */
+void CreateCommitWithTreeSHA(const FString& RepoOwner, const FString& RepoName,
+                            const FString& AccessToken, const FString& CommitMessage,
+                            const FString& TreeSHA, const FString& ParentSHA,
+                            TFunction<void(bool)> OnComplete)
+{
+    UE_LOG(LogTemp, Log, TEXT("RSSSync: Creating commit with tree SHA: %s"), *TreeSHA);
     
     FString CommitURL = FString::Printf(TEXT("https://api.github.com/repos/%s/%s/git/commits"),
                                        *RepoOwner, *RepoName);
     
-    // Create commit JSON (simplified - you'd need to build the full tree)
+    // Create commit JSON with valid tree SHA
     TSharedPtr<FJsonObject> CommitObject = MakeShareable(new FJsonObject());
     CommitObject->SetStringField(TEXT("message"), CommitMessage);
-    CommitObject->SetStringField(TEXT("tree"), TEXT("TREE_SHA_HERE")); // Would come from tree creation
+    CommitObject->SetStringField(TEXT("tree"), TreeSHA); // Use the actual tree SHA
     
     TArray<TSharedPtr<FJsonValue>> ParentsArray;
     ParentsArray.Add(MakeShareable(new FJsonValueString(ParentSHA)));
@@ -1001,6 +1182,8 @@ void UploadFilesAndCreateCommit(const FString& RepoOwner, const FString& RepoNam
     FString CommitJson;
     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&CommitJson);
     FJsonSerializer::Serialize(CommitObject.ToSharedRef(), Writer);
+    
+    UE_LOG(LogTemp, Log, TEXT("RSSSync: Commit JSON: %s"), *CommitJson);
     
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
     Request->SetURL(CommitURL);
@@ -1018,24 +1201,239 @@ void UploadFilesAndCreateCommit(const FString& RepoOwner, const FString& RepoNam
             int32 ResponseCode = Response->GetResponseCode();
             if (ResponseCode == 200 || ResponseCode == 201)
             {
-                UE_LOG(LogTemp, Log, TEXT("RSSSync: Successfully uploaded to GitHub"));
+                UE_LOG(LogTemp, Warning, TEXT("RSSSync: Successfully created test commit on GitHub"));
                 OnComplete(true);
             }
             else
             {
-                UE_LOG(LogTemp, Error, TEXT("RSSSync: GitHub upload failed with code %d"), ResponseCode);
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: GitHub commit creation failed with code %d"), ResponseCode);
                 UE_LOG(LogTemp, Error, TEXT("Response: %s"), *Response->GetContentAsString());
                 OnComplete(false);
             }
         }
         else
         {
-            UE_LOG(LogTemp, Error, TEXT("RSSSync: Network error during upload"));
+            UE_LOG(LogTemp, Error, TEXT("RSSSync: Network error during commit creation"));
             OnComplete(false);
         }
+    });    
+    if (!Request->ProcessRequest())
+    {
+        UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to start commit creation request"));
+        OnComplete(false);
+    }
+}
+
+/**
+ * Step 1.5: Validate GitHub Token Permissions
+ * 
+ * Tests if the provided token has access to the specified repository.
+ * This is especially important for private repositories.
+ * 
+ * @param RepoOwner - GitHub username/organization
+ * @param RepoName - Repository name
+ * @param AccessToken - GitHub Personal Access Token
+ * @param OnValidationComplete - Callback with validation result and error message
+ */
+void ValidateGitHubTokenAccess(const FString& RepoOwner, const FString& RepoName, 
+                              const FString& AccessToken, 
+                              TFunction<void(bool, FString)> OnValidationComplete)
+{
+    // Test repository access using GitHub API
+    FString TestURL = FString::Printf(TEXT("https://api.github.com/repos/%s/%s"), 
+                                     *RepoOwner, *RepoName);
+    
+    UE_LOG(LogTemp, Log, TEXT("RSSSync: Validating token access to %s"), *TestURL);
+    
+    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+    
+    Request->SetURL(TestURL);
+    Request->SetVerb(TEXT("GET"));
+    Request->SetTimeout(15.0f);
+    
+    // Add authorization header
+    if (!AccessToken.IsEmpty())
+    {
+        FString AuthHeader = FString::Printf(TEXT("token %s"), *AccessToken);
+        Request->SetHeader(TEXT("Authorization"), AuthHeader);
+    }
+    
+    Request->SetHeader(TEXT("User-Agent"), TEXT("UnrealEngine-RSSSync/1.0"));
+    
+    Request->OnProcessRequestComplete().BindLambda([OnValidationComplete, RepoOwner, RepoName]
+        (FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+    {
+        bool bHasAccess = false;
+        FString ErrorMessage;
+        
+        if (bWasSuccessful && Response.IsValid())
+        {
+            int32 ResponseCode = Response->GetResponseCode();
+            
+            switch (ResponseCode)
+            {
+                case 200:
+                    bHasAccess = true;
+                    UE_LOG(LogTemp, Log, TEXT("RSSSync: Token has access to %s/%s"), *RepoOwner, *RepoName);
+                    break;
+                    
+                case 401:
+                    ErrorMessage = TEXT("Invalid or expired access token");
+                    UE_LOG(LogTemp, Error, TEXT("RSSSync: Authentication failed - %s"), *ErrorMessage);
+                    break;
+                    
+                case 403:
+                    ErrorMessage = TEXT("Token lacks required permissions for this repository");
+                    UE_LOG(LogTemp, Error, TEXT("RSSSync: Forbidden - %s"), *ErrorMessage);
+                    break;
+                    
+                case 404:
+                    ErrorMessage = FString::Printf(TEXT("Repository %s/%s not found or no access"), *RepoOwner, *RepoName);
+                    UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *ErrorMessage);
+                    break;
+                    
+                default:
+                    ErrorMessage = FString::Printf(TEXT("HTTP %d error"), ResponseCode);
+                    UE_LOG(LogTemp, Error, TEXT("RSSSync: Validation failed - %s"), *ErrorMessage);
+                    break;
+            }
+        }
+        else
+        {
+            ErrorMessage = TEXT("Network request failed");
+            UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *ErrorMessage);
+        }
+        
+        OnValidationComplete(bHasAccess, ErrorMessage);
     });
     
-    Request->ProcessRequest();
+    if (!Request->ProcessRequest())
+    {
+        UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to start validation request"));
+        OnValidationComplete(false, TEXT("Failed to start validation request"));
+    }
+}
+
+/**
+ * Enhanced Token Validation for Upload/Write Operations
+ * 
+ * Tests if the provided token has WRITE access to the specified repository.
+ * Upload operations require 'repo' scope for private repos or 'public_repo' for public repos.
+ * 
+ * @param RepoOwner - GitHub username/organization
+ * @param RepoName - Repository name
+ * @param AccessToken - GitHub Personal Access Token
+ * @param OnValidationComplete - Callback with validation result and error message
+ */
+void ValidateGitHubTokenWriteAccess(const FString& RepoOwner, const FString& RepoName, 
+                                   const FString& AccessToken, 
+                                   TFunction<void(bool, FString)> OnValidationComplete)
+{
+    // Test write access by attempting to get repository permissions
+    FString TestURL = FString::Printf(TEXT("https://api.github.com/repos/%s/%s"), 
+                                     *RepoOwner, *RepoName);
+    
+    UE_LOG(LogTemp, Log, TEXT("RSSSync: Validating token WRITE access to %s"), *TestURL);
+    
+    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+    
+    Request->SetURL(TestURL);
+    Request->SetVerb(TEXT("GET"));
+    Request->SetTimeout(15.0f);
+    
+    // Add authorization header
+    if (!AccessToken.IsEmpty())
+    {
+        FString AuthHeader = FString::Printf(TEXT("token %s"), *AccessToken);
+        Request->SetHeader(TEXT("Authorization"), AuthHeader);
+    }
+    
+    Request->SetHeader(TEXT("User-Agent"), TEXT("UnrealEngine-RSSSync/1.0"));
+    
+    Request->OnProcessRequestComplete().BindLambda([OnValidationComplete, RepoOwner, RepoName]
+        (FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+    {
+        bool bHasWriteAccess = false;
+        FString ErrorMessage;
+        
+        if (bWasSuccessful && Response.IsValid())
+        {
+            int32 ResponseCode = Response->GetResponseCode();
+            
+            if (ResponseCode == 200)
+            {
+                // Parse the response to check permissions
+                FString ResponseString = Response->GetContentAsString();
+                TSharedPtr<FJsonObject> JsonObject;
+                TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
+                
+                if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+                {
+                    // Check if we have push permissions
+                    TSharedPtr<FJsonObject> PermissionsObject = JsonObject->GetObjectField(TEXT("permissions"));
+                    if (PermissionsObject.IsValid())
+                    {
+                        bool bCanPush = PermissionsObject->GetBoolField(TEXT("push"));
+                        bool bIsAdmin = PermissionsObject->GetBoolField(TEXT("admin"));
+                        
+                        if (bCanPush || bIsAdmin)
+                        {
+                            bHasWriteAccess = true;
+                            UE_LOG(LogTemp, Log, TEXT("RSSSync: Token has WRITE access to %s/%s"), *RepoOwner, *RepoName);
+                        }
+                        else
+                        {
+                            ErrorMessage = TEXT("Token has read access but lacks push/write permissions");
+                            UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *ErrorMessage);
+                        }
+                    }
+                    else
+                    {
+                        ErrorMessage = TEXT("Unable to determine repository permissions");
+                        UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *ErrorMessage);
+                    }
+                }
+                else
+                {
+                    ErrorMessage = TEXT("Failed to parse repository information");
+                    UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *ErrorMessage);
+                }
+            }
+            else if (ResponseCode == 401)
+            {
+                ErrorMessage = TEXT("Invalid or expired access token");
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: Authentication failed - %s"), *ErrorMessage);
+            }
+            else if (ResponseCode == 403)
+            {
+                ErrorMessage = TEXT("Token lacks required permissions for this repository");
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: Forbidden - %s"), *ErrorMessage);
+            }
+            else if (ResponseCode == 404)
+            {
+                ErrorMessage = FString::Printf(TEXT("Repository %s/%s not found or no access"), *RepoOwner, *RepoName);
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *ErrorMessage);
+            }
+            else
+            {
+                ErrorMessage = FString::Printf(TEXT("HTTP %d error"), ResponseCode);
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: Validation failed - %s"), *ErrorMessage);
+            }
+        }
+        else
+        {
+            ErrorMessage = TEXT("Network request failed");
+            UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *ErrorMessage);
+        }
+        
+        OnValidationComplete(bHasWriteAccess, ErrorMessage);
+    });
+    
+    if (!Request->ProcessRequest())
+    {
+        UE_LOG(LogTemp, Error, TEXT("RSSSync: Failed to start write access validation request"));
+        OnValidationComplete(false, TEXT("Failed to start validation request"));
+    }
 }
 
 /**
@@ -1230,3 +1628,72 @@ void ExampleUsage()
  * - Regularly rotate your access tokens
  * - Use the minimum required permissions for tokens
  */
+
+/**
+ * Enhanced Upload Function with Write Permission Validation
+ * 
+ * This function first validates that the token has WRITE permissions, then proceeds with upload.
+ * Essential for private repositories and any repository that requires push access.
+ * 
+ * @param RepoOwner - GitHub username/organization
+ * @param RepoName - Repository name
+ * @param BranchName - Branch to upload to
+ * @param AccessToken - GitHub Personal Access Token with write permissions
+ * @param TempFolder - Path containing the updated files
+ * @param CommitMessage - Commit message for the update
+ * @param OnComplete - Callback with success status and error message
+ */
+void UploadUpdatedBranchWithValidation(const FString& RepoOwner, const FString& RepoName,
+                                      const FString& BranchName, const FString& AccessToken,
+                                      const FString& TempFolder, const FString& CommitMessage,
+                                      TFunction<void(bool, FString)> OnComplete)
+{
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: Starting WRITE validation for %s/%s (Upload requires push permissions)"), *RepoOwner, *RepoName);
+    
+    if (AccessToken.IsEmpty())
+    {
+        FString Error = TEXT("Access token is required for GitHub upload operations");
+        UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *Error);
+        OnComplete(false, Error);
+        return;
+    }
+    
+    // First validate write permissions
+    ValidateGitHubTokenWriteAccess(RepoOwner, RepoName, AccessToken, 
+        [RepoOwner, RepoName, BranchName, AccessToken, TempFolder, CommitMessage, OnComplete]
+        (bool bHasWriteAccess, FString ErrorMessage)
+        {
+            if (bHasWriteAccess)
+            {
+                UE_LOG(LogTemp, Log, TEXT("RSSSync: Token validated for WRITE access, proceeding with upload"));
+                
+                // Proceed with upload using the original function
+                UploadUpdatedBranchToGitHub(RepoOwner, RepoName, BranchName, AccessToken, TempFolder, CommitMessage,
+                    [OnComplete](bool bUploadSuccess)
+                    {
+                        if (bUploadSuccess)
+                        {
+                            OnComplete(true, TEXT("Upload completed successfully"));
+                        }
+                        else
+                        {
+                            OnComplete(false, TEXT("Upload operation failed"));
+                        }
+                    });
+            }
+            else
+            {
+                FString FullError = FString::Printf(TEXT("Write permission validation failed: %s"), *ErrorMessage);
+                UE_LOG(LogTemp, Error, TEXT("RSSSync: %s"), *FullError);
+                
+                // Provide specific guidance for common permission issues
+                if (ErrorMessage.Contains(TEXT("read access but lacks push")))
+                {
+                    FullError += TEXT("\n\nSOLUTION: Your token needs 'repo' scope for private repos or 'public_repo' scope for public repos.");
+                    FullError += TEXT("\nGenerate a new token at: GitHub Settings > Developer settings > Personal access tokens");
+                }
+                
+                OnComplete(false, FullError);
+            }
+        });
+}

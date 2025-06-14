@@ -146,6 +146,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	void TestWrapperFunction();
 
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
+	void TestEnhancedUploadFunction();
+
 	// Delegates
 	UFUNCTION()
 	void RSSInit();
