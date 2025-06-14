@@ -29,6 +29,12 @@ extern void MakeZIPInDir();
 extern void UnZipInDir();
 extern void ThrowTimer_UTIL();
 
+// Integration externals
+extern FString CreateRSSSyncTempFolder();
+extern bool CreateManifest();
+extern bool EnsureLocalManifestExists();
+TArray<FString> CompareManifestsAndFindDifferences(bool bExecuteChanges, const FString& TempFolder);
+
 void UMacrosManager::NativePreConstruct()
 {
     Super::NativePreConstruct();
@@ -640,6 +646,32 @@ void UMacrosManager::UNZIPFiles_UTIL()
 
     // ThrowTimer_UTIL();
 }
+
+void UMacrosManager::TestWrapperFunction()
+{
+    // FString TempPath = CreateRSSSyncTempFolder();
+
+    // UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::TempPath: %s"), *TempPath);
+
+    // bool bSuccess = CreateManifest();
+    // if (bSuccess)
+    // {
+    //     UE_LOG(LogTemp, Warning, TEXT("TestWrapperFunction::Remote manifest created successfully."));
+    // }
+    // else
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("TestWrapperFunction::Failed to create remote manifest."));
+    // }
+
+    bool bExecute = false;
+
+    FString TempFolder = TEXT("D:/[DGE]/Projects/HTTPRequester/Temp/RSSSync/");
+
+    TArray<FString> Diffs = CompareManifestsAndFindDifferences(bExecute, TempFolder);
+
+
+}
+
 // void UMacrosManager::GetLocalFiles(const FString &LocalPath, TArray<FString> &OutFiles)
 // {
 //     IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();

@@ -143,6 +143,9 @@ class UMacrosManager : public UEditorUtilityWidget
 	// UFUNCTION(BlueprintCallable, Category="HTTP")
 	// void GetLocalFiles(const FString& LocalPath, TArray<FString>& OutFiles);
 
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
+	void TestWrapperFunction();
+
 	// Delegates
 	UFUNCTION()
 	void RSSInit();
