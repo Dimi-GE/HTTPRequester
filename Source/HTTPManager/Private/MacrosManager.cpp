@@ -796,7 +796,7 @@ void UMacrosManager::TestEnhancedUploadFunction()
     FString RepoOwner = TEXT("Dimi-GE");
     FString RepoName = TEXT("EasyGitHub");
     FString BranchName = TEXT("main");
-    FString AccessToken = TEXT("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"); // Expires in 1 week, replace with your own token
+    // FString AccessToken = TEXT("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"); // Expires in 1 week, replace with your own token
     FString CommitMessage = TEXT("Update files via Unreal Engine RSS Sync system");
 
     UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Using ENHANCED upload with WRITE PERMISSION validation"));
