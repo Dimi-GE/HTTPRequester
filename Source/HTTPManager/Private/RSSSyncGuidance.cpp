@@ -911,12 +911,11 @@ bool PackUpdatedBranchToZip(const FString& TempFolder)
  * BEGINNER NOTE: This is the most complex part as it requires understanding
  * of Git concepts like commits, trees, and blobs. GitHub API handles the Git
  * operations for us, but we need to follow their specific workflow.
- * 
  * @param RepoOwner - GitHub username/organization
  * @param RepoName - Repository name
  * @param BranchName - Target branch for upload
  * @param AccessToken - GitHub Personal Access Token (required for push operations)
- * @param TempFolder - Path to temp folder containing the ZIP to upload
+ * @param TempFolder - Path to folder containing extracted files ready for upload
  * @param CommitMessage - Commit message for the update
  * @param OnUploadComplete - Callback function when upload finishes
  */
@@ -932,11 +931,14 @@ void UploadUpdatedBranchToGitHub(const FString& RepoOwner, const FString& RepoNa
         return;
     }
     
-    FString ZipPath = TempFolder + TEXT("updated_branch.zip");
+    // NOTE: No longer checking for ZIP file - expecting extracted files in TempFolder
+    // This allows you to test extraction separately from upload
+    UE_LOG(LogTemp, Log, TEXT("RSSSync: Using extracted folder path: %s"), *TempFolder);
     
-    if (!FPaths::FileExists(ZipPath))
+    // Check if the folder exists
+    if (!IFileManager::Get().DirectoryExists(*TempFolder))
     {
-        UE_LOG(LogTemp, Error, TEXT("RSSSync: Updated ZIP file not found"));
+        UE_LOG(LogTemp, Error, TEXT("RSSSync: Extracted folder not found: %s"), *TempFolder);
         OnUploadComplete(false);
         return;
     }
@@ -954,11 +956,10 @@ void UploadUpdatedBranchToGitHub(const FString& RepoOwner, const FString& RepoNa
     void GetBranchReference(const FString& RepoOwner, const FString& RepoName,
                        const FString& BranchName, const FString& AccessToken,
                        TFunction<void(bool, FString)> OnComplete);
-    
-    // Forward declaring the helper function to upload files and create commit
+      // Forward declaring the helper function to upload files and create commit
     void UploadFilesAndCreateCommit(const FString& RepoOwner, const FString& RepoName,
                                    const FString& BranchName, const FString& AccessToken,
-                                   const FString& TempFolder, const FString& CommitMessage,
+                                   const FString& ExtractedFolderPath, const FString& CommitMessage,
                                    const FString& ParentSHA, TFunction<void(bool)> OnComplete);
                                    
     // Forward declaring helper functions for commit creation
@@ -982,8 +983,8 @@ void UploadUpdatedBranchToGitHub(const FString& RepoOwner, const FString& RepoNa
                 OnUploadComplete(false);
                 return;
             }
-            
-            // Step 2: Upload files and create commit
+              // Step 2: Upload files and create commit
+            // NOTE: Passing TempFolder as ExtractedFolderPath - assumes files are already extracted
             UploadFilesAndCreateCommit(RepoOwner, RepoName, BranchName, AccessToken,
                                      TempFolder, CommitMessage, CurrentSHA, OnUploadComplete);
         });
@@ -1054,23 +1055,27 @@ void CreateSimpleTestCommit(const FString& RepoOwner, const FString& RepoName,
 
 void UploadFilesAndCreateCommit(const FString& RepoOwner, const FString& RepoName,
                                const FString& BranchName, const FString& AccessToken,
-                               const FString& TempFolder, const FString& CommitMessage,
+                               const FString& ExtractedFolderPath, const FString& CommitMessage,
                                const FString& ParentSHA, TFunction<void(bool)> OnComplete)
 {
-    UE_LOG(LogTemp, Warning, TEXT("RSSSync: UploadFilesAndCreateCommit - Current implementation is incomplete"));
-    UE_LOG(LogTemp, Warning, TEXT("RSSSync: This function requires full implementation of:"));
-    UE_LOG(LogTemp, Warning, TEXT("RSSSync: 1. Extract files from ZIP"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: UploadFilesAndCreateCommit - Accepts extracted folder path"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: ExtractedFolderPath: %s"), *ExtractedFolderPath);
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: This function will implement:"));
+    UE_LOG(LogTemp, Warning, TEXT("RSSSync: 1. Read files from extracted folder"));
     UE_LOG(LogTemp, Warning, TEXT("RSSSync: 2. Create blob objects for each file"));
     UE_LOG(LogTemp, Warning, TEXT("RSSSync: 3. Create tree object with all blobs"));
     UE_LOG(LogTemp, Warning, TEXT("RSSSync: 4. Create commit with valid tree SHA"));
     UE_LOG(LogTemp, Warning, TEXT("RSSSync: 5. Update branch reference"));
     
     // For now, create a simple placeholder commit to test the basic structure
-    // In a real implementation, you would need to:
-    // - Extract files from the ZIP in TempFolder
+    // In the next implementation step, you would:
+    // - Read files from ExtractedFolderPath
     // - Create blob objects for each file via POST to /repos/{owner}/{repo}/git/blobs
     // - Collect all blob SHAs and create a tree via POST to /repos/{owner}/{repo}/git/trees
     // - Use the tree SHA to create the commit
+    
+    // NOTE: ExtractedFolderPath should contain the files ready for upload
+    // This separation allows you to test ZIP extraction independently
     
     // Let's create a minimal test commit first to validate the flow
     CreateSimpleTestCommit(RepoOwner, RepoName, BranchName, AccessToken, CommitMessage, ParentSHA, OnComplete);
@@ -1634,12 +1639,11 @@ void ExampleUsage()
  * 
  * This function first validates that the token has WRITE permissions, then proceeds with upload.
  * Essential for private repositories and any repository that requires push access.
- * 
- * @param RepoOwner - GitHub username/organization
+ *  * @param RepoOwner - GitHub username/organization
  * @param RepoName - Repository name
  * @param BranchName - Branch to upload to
  * @param AccessToken - GitHub Personal Access Token with write permissions
- * @param TempFolder - Path containing the updated files
+ * @param ExtractedFolderPath - Path containing the extracted files ready for upload
  * @param CommitMessage - Commit message for the update
  * @param OnComplete - Callback with success status and error message
  */

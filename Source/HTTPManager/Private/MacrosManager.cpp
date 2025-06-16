@@ -762,7 +762,7 @@ void UMacrosManager::TestEnhancedUploadFunction()
     UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Starting enhanced upload test with permission validation"));
     
     // Create proper temp folder for upload
-    FString TempFolder = TEXT("D:/[DGE]/Projects/HTTPRequester/Temp/RSSSync/");
+    FString TempFolder = TEXT("D:/[DGE]/Projects/HTTPRequester/Temp/RSSSync/branch_download/");
     if (TempFolder.IsEmpty())
     {
         UE_LOG(LogTemp, Error, TEXT("TestEnhancedUpload::Failed to create temp folder"));
@@ -792,16 +792,21 @@ void UMacrosManager::TestEnhancedUploadFunction()
             }
         }
     };
-    
-    FString RepoOwner = TEXT("Dimi-GE");
+      FString RepoOwner = TEXT("Dimi-GE");
     FString RepoName = TEXT("EasyGitHub");
     FString BranchName = TEXT("main");
-    // FString AccessToken = TEXT("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"); // Expires in 1 week, replace with your own token
+    FString AccessToken = TEXT(""); // Expires in 1 week, replace with your own token
     FString CommitMessage = TEXT("Update files via Unreal Engine RSS Sync system");
 
+    // NOTE: For testing purposes, use an extracted folder path instead of TempFolder
+    // This way you can test ZIP extraction separately from upload
+    // FString ExtractedFolderPath = TempFolder + TEXT("extracted/");
+    
     UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Using ENHANCED upload with WRITE PERMISSION validation"));
+    // UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::ExtractedFolderPath: %s"), *ExtractedFolderPath);
     
     // Use the enhanced function that validates write permissions first
+    // NOTE: Passing ExtractedFolderPath instead of TempFolder for better architecture
     UploadUpdatedBranchWithValidation(RepoOwner, RepoName, BranchName, AccessToken,
                                      TempFolder, CommitMessage, OnUploadCompleteEnhanced);
                              
