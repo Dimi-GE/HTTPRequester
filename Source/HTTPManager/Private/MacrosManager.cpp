@@ -812,3 +812,71 @@ void UMacrosManager::TestEnhancedUploadFunction()
                              
     UE_LOG(LogTemp, Warning, TEXT("TestEnhancedUpload::Enhanced upload validation started - Editor should remain responsive"));
 }
+
+/**
+ * Enhanced Test Function for Complete Upload Workflow
+ * 
+ * This function tests all 5 steps of the upload workflow:
+ * 1. Read files from extracted folder
+ * 2. Create blob objects for each file
+ * 3. Create tree object with all blobs  
+ * 4. Create commit with valid tree SHA
+ * 5. Update branch reference
+ */
+void UMacrosManager::TestCompleteUploadWorkflow()
+{
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::Starting complete 5-step upload workflow test"));
+    
+    // Test parameters - update these for your repository
+    FString RepoOwner = TEXT("Dimi-GE");
+    FString RepoName = TEXT("EasyGitHub");
+    FString BranchName = TEXT("main");
+    FString AccessToken = TEXT(""); // Add your token here for testing
+    FString CommitMessage = TEXT("Complete workflow test from Unreal Engine");
+    
+    // Path to extracted files (not ZIP) - for testing, use your existing extracted folder
+    FString ExtractedFolderPath = TEXT("D:/[DGE]/Projects/HTTPRequester/Temp/RSSSync/branch_download/");
+    
+    if (AccessToken.IsEmpty())
+    {
+        UE_LOG(LogTemp, Error, TEXT("TestCompleteUpload::Please set AccessToken for testing"));
+        return;
+    }
+    
+    if (!IFileManager::Get().DirectoryExists(*ExtractedFolderPath))
+    {
+        UE_LOG(LogTemp, Error, TEXT("TestCompleteUpload::Extracted folder not found: %s"), *ExtractedFolderPath);
+        UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::Create the folder and add test files, or run download first"));
+        return;
+    }
+    
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::=== WORKFLOW STATUS ==="));
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::✅ Step 1: Read files from extracted folder - IMPLEMENTED"));
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::✅ Step 2: Create blob objects for each file - IMPLEMENTED"));
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::✅ Step 3: Create tree object with all blobs - IMPLEMENTED"));
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::✅ Step 4: Create commit with valid tree SHA - IMPLEMENTED"));
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::✅ Step 5: Update branch reference - IMPLEMENTED"));
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::=== ALL STEPS READY FOR TESTING ==="));
+    
+    // Enhanced callback with detailed status reporting
+    TFunction<void(bool, FString)> OnUploadCompleteDetailed = [this](bool bSuccess, FString ErrorMessage)
+    {
+        if (bSuccess)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::🎉 SUCCESS: Complete 5-step upload workflow executed successfully!"));
+            UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::All files have been uploaded to GitHub repository"));
+            UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::You can now verify the changes on GitHub"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("TestCompleteUpload::❌ FAILED: Upload workflow failed: %s"), *ErrorMessage);
+            UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::Check the logs above to see which step failed"));
+        }
+    };
+    
+    // Use the enhanced upload function with full validation
+    UploadUpdatedBranchWithValidation(RepoOwner, RepoName, BranchName, AccessToken,
+                                     ExtractedFolderPath, CommitMessage, OnUploadCompleteDetailed);
+                             
+    UE_LOG(LogTemp, Warning, TEXT("TestCompleteUpload::Upload workflow initiated - Monitor logs for progress"));
+}
