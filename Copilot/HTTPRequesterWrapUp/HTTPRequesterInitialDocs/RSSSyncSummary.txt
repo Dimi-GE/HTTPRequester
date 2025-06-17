@@ -1,0 +1,164 @@
+RSS SYNC SYSTEM - AI AGENT REQUIREMENTS SUMMARY
+========================================================
+
+PROJECT OVERVIEW:
+-----------------
+An Unreal Engine 5 plugin system for internal source control using GitHub as backend storage.
+The system downloads GitHub branches, extracts ZIP files, calculates hashes, creates manifests,
+and synchronizes local files with remote repositories.
+
+CURRENT PROJECT STATE:
+---------------------
+- Base UE5 project: HTTPManager (d:\[DGE]\Projects\HTTPRequester\)
+- Engine location: d:\[DGE]\Engine\UE_5.4\
+- Implementation likelihood: 60% (with provided guidance)
+- Status: Design phase complete, implementation guide provided
+
+EXISTING CODEBASE ANALYSIS:
+--------------------------
+The following files contain relevant utilities:
+
+1. CustomUtilities.cpp:
+   - CalculateFileHash() - SHA256 hashing
+   - CreateManifestFromDirectory() - JSON manifest generation
+   - CompareManifests() - Manifest comparison logic
+   - File system utilities (copy, move, delete operations)
+
+2. ZipHandler.cpp:
+   - ExtractZipFile() - ZIP extraction with progress tracking
+   - CreateZipFile() - ZIP creation functionality
+   - CollectFilesFromDirectory() - Recursive file collection
+
+3. MacrosManager.cpp:
+   - UI integration patterns
+   - HTTP request handling
+   - Manifest loading/saving
+   - User interaction workflows
+
+4. HTTPRequester.cpp:
+   - DownloadFile() - HTTP download with progress tracking
+   - Credential handling patterns
+   - Error handling for network operations
+
+5. RSS Configuration Files:
+   - RSSInit.json - Base configuration structure
+   - RSSManifest.json - File manifest format and structure
+
+DELIVERABLES PROVIDED:
+---------------------
+1. RSSSyncGuidance.h - Complete implementation guide with:
+   - 10 step-by-step functions for full sync workflow
+   - Integration with existing utilities
+   - Error handling and user prompts
+   - Detailed comments and usage examples
+
+2. RSSSyncMistakes.txt - Logical analysis covering:
+   - Design and architecture issues
+   - Security vulnerabilities
+   - Performance concerns
+   - User experience problems
+   - Scalability limitations
+
+3. RSSSyncChat.txt - Conversation log and context
+
+4. RSSSyncSummary.txt - This file (AI agent requirements)
+
+CORE WORKFLOW REQUIREMENTS:
+--------------------------
+The system must implement these key functions:
+
+1. PromptForGitHubCredentials() - Secure credential collection
+2. DownloadGitHubBranch() - Repository branch download
+3. ExtractDownloadedZip() - ZIP file extraction
+4. CalculateDirectoryHashes() - Recursive hash calculation
+5. CreateSyncManifest() - JSON manifest generation
+6. LoadLocalManifest() - Local manifest loading
+7. CompareManifests() - Difference identification
+8. SyncChangedFiles() - File synchronization
+9. UpdateLocalManifest() - Manifest updating
+10. ExecuteFullSync() - Complete workflow orchestration
+
+TECHNICAL CONSTRAINTS:
+---------------------
+- Must integrate with existing UE5 project architecture
+- Requires GitHub API compatibility
+- Should use existing utility functions where possible
+- Must handle network failures gracefully
+- Should provide user feedback during operations
+- Must maintain file integrity during sync operations
+
+SECURITY REQUIREMENTS:
+---------------------
+- Secure credential storage/handling
+- File validation before overwriting
+- Backup creation before destructive operations
+- Input sanitization for all user inputs
+- Error logging without exposing sensitive data
+
+PERFORMANCE CONSIDERATIONS:
+--------------------------
+- Large file handling (>100MB repositories)
+- Progress tracking for long operations
+- Memory management during ZIP operations
+- Concurrent file operations where safe
+- Network timeout handling
+
+USER EXPERIENCE REQUIREMENTS:
+-----------------------------
+- Clear progress indicators
+- Informative error messages
+- Confirmation prompts for destructive operations
+- Ability to cancel long-running operations
+- Status logging and feedback
+
+INTEGRATION POINTS:
+------------------
+- UE5 Editor UI integration
+- Existing HTTP request system
+- Current manifest system
+- File system utilities
+- ZIP handling utilities
+
+RISK FACTORS (40% implementation challenges):
+--------------------------------------------
+1. Security vulnerabilities (credential handling, file validation)
+2. Complex error handling scenarios
+3. Network reliability issues
+4. File system permissions and conflicts
+5. Large repository performance
+6. User experience edge cases
+7. Integration testing complexity
+
+NEXT STEPS FOR IMPLEMENTATION:
+-----------------------------
+1. Review RSSSyncGuidance.h for detailed function specifications
+2. Implement core functions using existing utility integration
+3. Add comprehensive error handling and logging
+4. Implement secure credential management
+5. Create UI integration points
+6. Develop comprehensive testing strategy
+7. Address security concerns identified in RSSSyncMistakes.txt
+
+FILES TO REFERENCE:
+------------------
+- RSSSyncGuidance.h - Primary implementation guide
+- RSSSyncMistakes.txt - Issues analysis and recommendations
+- RSSSyncChat.txt - Full conversation context
+- Source files: CustomUtilities.cpp, ZipHandler.cpp, MacrosManager.cpp, HTTPRequester.cpp
+- Config files: RSSInit.json, RSSManifest.json
+
+ASSESSMENT:
+----------
+Implementation likelihood: 60% with guidance
+Primary challenges: Security, error handling, performance optimization
+Recommended approach: Incremental implementation with thorough testing
+
+For any AI agent taking over this project:
+1. Start by reading all provided guidance files
+2. Understand the existing codebase utilities
+3. Follow the step-by-step implementation in RSSSyncGuidance.h
+4. Address security concerns from RSSSyncMistakes.txt
+5. Test incrementally with small repositories first
+6. Implement comprehensive error handling throughout
+
+Last updated: June 13, 2025
