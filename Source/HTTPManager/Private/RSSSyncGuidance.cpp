@@ -1024,7 +1024,17 @@ void UploadUpdatedBranchToGitHub(const FString& RepoOwner, const FString& RepoNa
 /**
  * Helper Function: Get Branch Reference from GitHub
  * 
- * Gets the current SHA hash of the branch head, which we need to create a new commit.
+ * Gets the current SHA hash of the branch head, which we need as a parent for creating a new commit.
+ * This is essential for maintaining Git history continuity.
+ * 
+ * BEGINNER NOTE: In Git, every commit (except the initial commit) must have a parent commit.
+ * This function gets the SHA hash of the current branch tip to use as our parent.
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param BranchName - Branch to get reference for (e.g., "main", "develop")
+ * @param AccessToken - GitHub Personal Access Token for authentication
+ * @param OnComplete - Callback function with (bSuccess, SHA) - SHA is empty on failure
  */
 void GetBranchReference(const FString& RepoOwner, const FString& RepoName,
                        const FString& BranchName, const FString& AccessToken,
@@ -1069,13 +1079,26 @@ void GetBranchReference(const FString& RepoOwner, const FString& RepoName,
 /**
  * Helper Function: Upload Files and Create Commit
  * 
- * This is a simplified version - in reality, you'd need to: * 1. Read each file from the ZIP
- * 2. Create GitHub blobs for each file
- * 3. Create a new tree object with all blobs
+ * Orchestrates the complete file upload process to GitHub using the Git API workflow.
+ * This function implements the 5-step GitHub upload process:
+ * 1. Read files from extracted folder
+ * 2. Create GitHub blob objects for each file
+ * 3. Create a tree object that references all blobs
  * 4. Create a commit object pointing to the tree
- * 5. Update the branch reference
+ * 5. Update the branch reference to point to the new commit
  * 
- * For brevity, this shows the general structure.
+ * BEGINNER NOTE: GitHub's API requires us to follow Git's internal structure.
+ * We can't just "upload files" - we must create Git objects (blobs, trees, commits)
+ * and link them together properly.
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param BranchName - Target branch for the upload
+ * @param AccessToken - GitHub Personal Access Token with write permissions
+ * @param ExtractedFolderPath - Local path containing files to upload
+ * @param CommitMessage - Message for the commit (e.g., "Updated project files")
+ * @param ParentSHA - SHA of the parent commit (from GetBranchReference)
+ * @param OnComplete - Callback function with success status
  */
 
 // Forward declaration of helper function to create a simple test commit
@@ -1132,7 +1155,25 @@ void UploadFilesAndCreateCommit(const FString& RepoOwner, const FString& RepoNam
  * Step 2: Create Blob Objects for Files
  * 
  * Creates GitHub blob objects for each file that needs to be uploaded.
- * Blobs are the Git objects that store file content.
+ * Blobs are Git objects that store the actual file content in base64 encoding.
+ * 
+ * BEGINNER NOTE: In Git terminology:
+ * - Blob = Binary Large Object = stores file content
+ * - Tree = Directory structure = references blobs and other trees
+ * - Commit = Snapshot = points to a tree and has metadata (message, author, etc.)
+ * 
+ * This function processes all files in parallel to improve performance,
+ * using a shared state object to track completion.
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param BranchName - Target branch (passed through to next step)
+ * @param AccessToken - GitHub Personal Access Token with write permissions
+ * @param FilePaths - Array of absolute file paths to upload
+ * @param RelativePaths - Array of relative paths (how files appear in repository)
+ * @param CommitMessage - Commit message (passed through to next step)
+ * @param ParentSHA - Parent commit SHA (passed through to next step)
+ * @param OnComplete - Callback function with success status
  */
 void CreateBlobsForFiles(const FString& RepoOwner, const FString& RepoName, const FString& BranchName, 
                         const FString& AccessToken, const TArray<FString>& FilePaths, const TArray<FString>& RelativePaths,
@@ -1174,6 +1215,25 @@ void CreateBlobsForFiles(const FString& RepoOwner, const FString& RepoName, cons
 
 /**
  * Helper: Create a Single Blob Object
+ * 
+ * Creates one GitHub blob object for a single file. This function:
+ * 1. Reads the file content from disk
+ * 2. Encodes it to base64 (required by GitHub API)
+ * 3. Makes an HTTP POST request to create the blob
+ * 4. Parses the response to get the blob SHA
+ * 5. Updates the shared state and calls completion callback when all blobs are done
+ * 
+ * BEGINNER NOTE: This function uses asynchronous HTTP requests, so it returns immediately
+ * while the actual work happens in the background. The OnAllBlobsComplete callback
+ * is called when ALL blob creation operations are finished.
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param AccessToken - GitHub Personal Access Token with write permissions
+ * @param FilePath - Absolute path to the file to upload
+ * @param BlobIndex - Index in the BlobInfos array (for updating the correct entry)
+ * @param State - Shared state object tracking all blob creation operations
+ * @param OnAllBlobsComplete - Callback when all blobs are complete (not just this one)
  */
 void CreateSingleBlob(const FString& RepoOwner, const FString& RepoName, const FString& AccessToken,
                      const FString& FilePath, int32 BlobIndex, TSharedPtr<struct FBlobCreationState> State,
@@ -1274,7 +1334,23 @@ void CreateSingleBlob(const FString& RepoOwner, const FString& RepoName, const F
  * Step 3: Create Tree Object with All Blobs
  * 
  * Creates a GitHub tree object that references all the blob objects.
- * This is equivalent to a Git tree that defines the file structure.
+ * This is equivalent to a Git tree that defines the complete file structure of the repository.
+ * 
+ * BEGINNER NOTE: Think of a tree as a "directory listing" that tells Git:
+ * - What files exist in this commit
+ * - Where each file is located (path)
+ * - What type each item is (blob for files, tree for subdirectories)
+ * - What permissions each file has (mode: 100644 = regular file, 100755 = executable)
+ * - Which blob contains the content for each file (SHA reference)
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param BranchName - Target branch (passed through to next step)
+ * @param AccessToken - GitHub Personal Access Token with write permissions
+ * @param BlobInfos - Array of blob information (path, SHA, mode) for all files
+ * @param CommitMessage - Commit message (passed through to next step)
+ * @param ParentSHA - Parent commit SHA (passed through to next step)
+ * @param OnComplete - Callback function with success status
  */
 void CreateTreeWithBlobs(const FString& RepoOwner, const FString& RepoName, const FString& BranchName,
                         const FString& AccessToken, const TArray<FBlobInfo>& BlobInfos, 
@@ -1366,7 +1442,25 @@ void CreateTreeWithBlobs(const FString& RepoOwner, const FString& RepoName, cons
 /**
  * Step 4: Create Commit with Tree SHA
  * 
- * Creates a GitHub commit object that points to the new tree.
+ * Creates a GitHub commit object that points to the new tree and includes commit metadata.
+ * A commit in Git represents a snapshot of the repository at a specific point in time.
+ * 
+ * BEGINNER NOTE: A commit contains:
+ * - Tree SHA: Points to the file structure (what files exist and their content)
+ * - Parent SHA(s): Links to previous commit(s) to maintain history
+ * - Commit message: Human-readable description of changes
+ * - Author/Committer info: Who made the changes and when (GitHub sets this automatically)
+ * 
+ * After creating the commit, we get a commit SHA that uniquely identifies this snapshot.
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param BranchName - Target branch (passed through to next step)
+ * @param AccessToken - GitHub Personal Access Token with write permissions
+ * @param CommitMessage - Human-readable commit message describing the changes
+ * @param TreeSHA - SHA of the tree object (from CreateTreeWithBlobs)
+ * @param ParentSHA - SHA of the parent commit (maintains Git history)
+ * @param OnComplete - Callback function with success status
  */
 void CreateCommitWithTreeSHA(const FString& RepoOwner, const FString& RepoName, const FString& BranchName,
                             const FString& AccessToken, const FString& CommitMessage, const FString& TreeSHA, 
@@ -1450,7 +1544,23 @@ void CreateCommitWithTreeSHA(const FString& RepoOwner, const FString& RepoName, 
 /**
  * Step 5: Update Branch Reference
  * 
- * Updates the branch reference to point to the new commit, completing the upload.
+ * Updates the branch reference to point to the new commit, completing the upload process.
+ * This is equivalent to "git push" - it makes the new commit the head of the branch.
+ * 
+ * BEGINNER NOTE: In Git, a branch is just a pointer to a commit. When we "push" changes,
+ * we're actually updating this pointer to point to our new commit. This makes all the
+ * changes visible to anyone who pulls from this branch.
+ * 
+ * The force parameter controls whether to allow non-fast-forward updates:
+ * - false (recommended): Only allow updates that don't lose history
+ * - true (dangerous): Force update even if it would lose commits
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param BranchName - Target branch to update (e.g., "main", "develop")
+ * @param AccessToken - GitHub Personal Access Token with write permissions
+ * @param CommitSHA - SHA of the new commit (from CreateCommitWithTreeSHA)
+ * @param OnComplete - Callback function with success status
  */
 void UpdateBranchReference(const FString& RepoOwner, const FString& RepoName, const FString& BranchName,
                           const FString& AccessToken, const FString& CommitSHA, TFunction<void(bool)> OnComplete)
@@ -1515,13 +1625,22 @@ void UpdateBranchReference(const FString& RepoOwner, const FString& RepoName, co
  * 
  * This function first validates that the token has WRITE permissions, then proceeds with upload.
  * Essential for private repositories and any repository that requires push access.
- *  * @param RepoOwner - GitHub username/organization
+ * 
+ * BEGINNER NOTE: GitHub tokens have different permission scopes:
+ * - public_repo: Can access public repositories
+ * - repo: Can access private repositories
+ * - admin:repo_hook: Can manage webhooks
+ * 
+ * This function helps users understand permission issues before attempting upload,
+ * providing clear error messages and solutions.
+ * 
+ * @param RepoOwner - GitHub username or organization name
  * @param RepoName - Repository name
  * @param BranchName - Branch to upload to
  * @param AccessToken - GitHub Personal Access Token with write permissions
- * @param ExtractedFolderPath - Path containing the extracted files ready for upload
+ * @param TempFolder - Path containing the extracted files ready for upload
  * @param CommitMessage - Commit message for the update
- * @param OnComplete - Callback with success status and error message
+ * @param OnComplete - Callback with (bSuccess, ErrorMessage) - ErrorMessage empty on success
  */
 void UploadUpdatedBranchWithValidation(const FString& RepoOwner, const FString& RepoName,
                                       const FString& BranchName, const FString& AccessToken,
@@ -1579,8 +1698,21 @@ void UploadUpdatedBranchWithValidation(const FString& RepoOwner, const FString& 
 }
 
 /**
- * Test function for complete upload workflow
- * Tests the full 5-step upload process to GitHub
+ * Test Function: Complete Upload Workflow
+ * 
+ * Tests the full 5-step upload process to GitHub with sample data.
+ * This function demonstrates the complete workflow and can be used for development testing.
+ * 
+ * BEGINNER NOTE: This is a testing function that shows how to use the upload system.
+ * Replace the test parameters with real values to test with your own repository.
+ * 
+ * Test workflow:
+ * 1. Get branch reference (parent commit SHA)
+ * 2. Upload files and create commit (5-step process)
+ * 3. Handle success/failure through callback
+ * 
+ * @note This function uses hardcoded test values - modify before use
+ * @note Requires a valid GitHub repository and access token
  */
 void TestCompleteUploadWorkflow()
 {
@@ -1624,10 +1756,25 @@ void TestCompleteUploadWorkflow()
 }
 
 /**
- * Validate GitHub Token Access
+ * Utility Function: Validate GitHub Token Access
  * 
  * Tests if the provided token has access to the specified repository.
  * This function makes a simple API call to test token validity and permissions.
+ * 
+ * BEGINNER NOTE: This function helps prevent failed uploads by testing permissions first.
+ * Common GitHub API response codes:
+ * - 200: Success - token has access
+ * - 401: Unauthorized - invalid or expired token
+ * - 403: Forbidden - token lacks required permissions
+ * - 404: Not Found - repository doesn't exist or no access
+ * 
+ * The function provides specific error messages for each case to help users
+ * understand and fix permission issues.
+ * 
+ * @param RepoOwner - GitHub username or organization name
+ * @param RepoName - Repository name
+ * @param AccessToken - GitHub Personal Access Token to validate
+ * @param OnValidationComplete - Callback with (bHasAccess, ErrorMessage) - ErrorMessage empty on success
  */
 void ValidateGitHubTokenAccess(const FString& RepoOwner, const FString& RepoName, 
                                const FString& AccessToken, TFunction<void(bool, FString)> OnValidationComplete)
