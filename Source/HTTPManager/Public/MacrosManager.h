@@ -162,7 +162,7 @@ class UMacrosManager : public UEditorUtilityWidget
 	UFUNCTION()
 	void ZIPFiles_UTIL();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "MacrosManagerLibrary")
 	void UNZIPFiles_UTIL();
 
 	private:
